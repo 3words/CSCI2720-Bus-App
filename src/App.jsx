@@ -1,26 +1,44 @@
 import React from 'react';
-import logo from './logo.svg';
+import { Button } from 'react-bootstrap';
 import './App.css';
+import Admin from './Admin';
+import User from './User';
+import NonUser from './NonUser';
+import 'bootstrap/dist/css/bootstrap.min.css'
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      login: false,
+      admin: false
+    };
+  }
+  handleLoginOnclick = (event, who) => {
+    this.setState({
+      login: true,
+      admin: who
+    });
+  }
+
+  render() {
+    return (
+      <div className="App">
+      <Button color="primary" onClick={(e) =>this.handleLoginOnclick(e,true)}>Temp Admin Login</Button>
+      <br/>
+      <Button color="secondary" onClick={(e) =>this.handleLoginOnclick(e,false)}>Temp User Login</Button>
+        {!this.state.login &&
+          <NonUser/>
+        }
+        {this.state.login && this.state.admin &&
+          <Admin/>
+        }
+        {this.state.login && !this.state.admin &&
+          <User/>
+        }
+      </div>
+    );
+  }
 }
 
 export default App;
