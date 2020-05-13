@@ -75,7 +75,7 @@ var StopSchema = mongoose.Schema({
   route: {
     type: Schema.Types.ObjectId,
     ref: 'Route'
-  }
+  },
   eta: {
     type: Date
   }
