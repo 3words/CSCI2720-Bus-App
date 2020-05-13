@@ -192,13 +192,15 @@ app.patch('/changePassword', getUserByUsername, async(req, res) => {
   if (req.body['newPassword'] != null){
     var hashPW = sha256(req.body['newPassword']);
     res.user.password = hashPW;
-  }
-  try{ 
-    const updatedPassword = await res.user.save();
-    res.send("Updated password for user "+res.user.userName+".<br>\n");
-  }catch (err) {
-    res.status(400).json({ message: err.message });
-  }
+      try{ 
+        const updatedPassword = await res.user.save();
+        res.send("Updated password for user "+res.user.userName+".<br>\n");
+      }catch (err) {
+        res.status(400).json({ message: err.message });
+      }}
+  else {
+      res.send("Please enter new password");
+    }
 });
 
 app.delete('/deleteUser', getUserByUsername, async(req, res) => {
