@@ -70,13 +70,17 @@ var RouteSchema = mongoose.Schema({
 var StopSchema = mongoose.Schema({
   loc: {
     type: Schema.Types.ObjectId,
-    ref: 'Location'
+    ref: 'Location',
+    unique: false
   },
   route: {
     type: Schema.Types.ObjectId,
-    ref: 'Route'
+    ref: 'Route',
+    unique: false
   }
 });
+
+StopSchema.index({loc: 1, route: 1}, {unique: true});
 
 var CommentSchema = mongoose.Schema({
   stop: {
@@ -89,6 +93,9 @@ var CommentSchema = mongoose.Schema({
   },
   comment: {
     type: String
+  },
+  timeStamp: {
+    type: Date
   }
 });
 
@@ -152,23 +159,82 @@ app.post('/register', function(req, res) {
       e.save(function(err) {
           if (err)
               res.send(err);
-          res.send("Ref: " + e);
+          res.send("User successfully registered.");
       });
    };
 });
 
-app.post('/homeLocation', async function(req, res) {
-  var inputUserName = req.body['userName'];
-  var long = req.body['long'];
-  var lat = req.body['lat'];
+app.get('/getUser', getUserByUsername, (req, res) => {
+  res.send(res.user);
+})
 
-  const e = await User.findOne({ userName: inputUserName });
-  e.homeLocation = {lat, long};
-      e.save(function(err) {
-          if (err)
-              res.send(err);
-          res.send("Ref: " + e);
-      });
+app.patch('/homeLocation', getUserByUsername, async(req, res) => {
+  if (req.body['lat'] != null){
+    res.user.homeLocation.lat = req.body['lat'];
+  }
+  if (req.body['long'] != null){
+    res.user.homeLocation.long = req.body['long'];
+  }
+  try{ 
+    const updatedHomeLocation = await res.user.save();
+    res.send("Updated home location for user "+res.user.userName+".<br>\n");
+  }catch (err) {
+    res.status(400).json({ message: err.message });
+  }
 });
+
+app.patch('/changeUserName', getUserByUsername, async(req, res) => {
+  if (req.body['newUserName'] != null){
+    res.user.userName = req.body['newUserName'];
+    try{ 
+      const updatedUserName = await res.user.save();
+      res.send("Username updated to "+res.user.userName+".<br>\n");
+    }catch (err) {
+      res.status(400).json({ message: err.message });
+    }
+  }else{
+    res.send("Please enter new username");
+  }
+});
+
+app.patch('/changePassword', getUserByUsername, async(req, res) => {
+  if (req.body['newPassword'] != null){
+    var hashPW = sha256(req.body['newPassword']);
+    res.user.password = hashPW;
+      try{ 
+        const updatedPassword = await res.user.save();
+        res.send("Updated password for user "+res.user.userName+".<br>\n");
+      }catch (err) {
+        res.status(400).json({ message: err.message });
+      }}
+  else {
+      res.send("Please enter new password");
+    }
+});
+
+app.delete('/deleteUser', getUserByUsername, async(req, res) => {
+  try{
+      await res.user.remove();
+      res.send("The following user has been deleted.\n User Name: "+res.user.userName+"<br>\n");  
+  }catch (err) {
+      res.status(500).json({ message: err.message });
+  }
+})
+
+async function getUserByUsername(req, res, next) {
+  var user;
+  var inputUserName = req.body['userName'];
+  try {
+    user = await User.findOne({ userName: inputUserName });
+    if (user == null) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+
+  res.user = user;
+  next();
+}
 
 app.listen(process.env.PORT || 8080);
