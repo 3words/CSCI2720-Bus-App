@@ -38,7 +38,21 @@ var UserSchema = mongoose.Schema({
   }
 });
 
+var LocationSchema = mongoose.Schema({
+  locationID: {
+    type: Number, unique: true
+  },
+  longitude: {
+    type: Number
+  },
+  latitude: {
+    long: Number
+  }
+});
+
 var User = mongoose.model('User', UserSchema);
+var Location = mongoose.model('Location', UserSchema);
+
 
 app.post('/login', function(req, res) {
   var inputUserName = req.body['userName'];
