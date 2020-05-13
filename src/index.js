@@ -4,7 +4,7 @@ import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import { Switch, Route, HashRouter as Router } from 'react-router-dom';
-import Admin from './Admin';
+import Admin from './admin/Admin';
 
 ReactDOM.render(
   <React.StrictMode>

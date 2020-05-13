@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
-import User from './User';
-import NonUser from './NonUser';
+import User from './user/User';
+import NonUser from './non_user/NonUser';
 import 'bootstrap/dist/css/bootstrap.min.css'
 
 class App extends React.Component {
