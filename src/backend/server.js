@@ -1,11 +1,12 @@
 const sha256 = require('js-sha256');
-
+const https = require("https");
 const express = require('express');
 const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 var mongoose = require('mongoose');
+mongoose.set('useFindAndModify', false);
 mongoose.connect('mongodb://localhost/csci2720');
 var Schema = mongoose.Schema;
 
@@ -123,15 +124,65 @@ var Stop = mongoose.model('Stop', StopSchema);
 var Comment = mongoose.model('Comment', CommentSchema);
 var Favourite = mongoose.model('Favourite', FavouriteSchema);
 
-var RouteURL = "https://rt.data.gov.hk/v1/transport/citybus-nwfb/route/CTB/967";
-async function getData(url) {
-  const response = await fetch(url);
-  return response.json();
-}
-async function getRoute() {
-  const data = await getData(URL);
-  console.log(data);
-}
+
+app.post('/flushData', function(req, res) {
+  var routeURL = [];
+  var routestopURL = [];
+  //Hard code route number if fixed
+  var routeNo = [967, 969, 97, 48, 314, 19, 20, 182, 171, 260];
+  routeNo.forEach(function(value){
+    routeURL.push("https://rt.data.gov.hk/v1/transport/citybus-nwfb/route/CTB/"+value);
+    routestopURL.push("https://rt.data.gov.hk/v1/transport/citybus-nwfb/route-stop/CTB/"+value+"/inbound");
+    routestopURL.push("https://rt.data.gov.hk/v1/transport/citybus-nwfb/route-stop/CTB/"+value+"/outbound");
+  });
+
+  //update Route database
+  routeURL.forEach(function(value){
+    https.get(value, res => {
+      res.setEncoding("utf8");
+      let body = "";
+      res.on("data", data => {
+        body += data;
+      });
+      res.on("end", async() => {
+          body = JSON.parse(body);
+          try{
+            const filter = {"route": body.data.route};
+            const update = {"dest": body.data.dest_en, "orig": body.data.orig_en};  
+            var route = await Route.findOneAndUpdate(filter, update, {
+            new: true,
+            upsert: true
+            });
+          }catch (err){
+            console.log(err);
+          }
+        });
+      });
+    }); 
+
+  //update Stop database (In Progress)
+  routestopURL.forEach(function(value){
+    https.get(value, res => {
+      res.setEncoding("utf8");
+      let body = "";
+      res.on("data", data => {
+        body += data;
+      });
+      res.on("end", async() => {
+          body = JSON.parse(body);
+          try{
+            var data = body.data;
+            //loop through all data
+            data.forEach(function(obj) {console.log(obj.stop)});
+          }catch (err){
+            console.log(err);
+          }
+        });
+      });
+    }); 
+
+  res.send("Data flush successful"); 
+});
 
 app.post('/login', function(req, res) {
   var inputUserName = req.body['userName'];
