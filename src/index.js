@@ -3,10 +3,17 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
+import { Switch, Route, HashRouter as Router } from 'react-router-dom';
+import Admin from './Admin';
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <Router>
+      <Switch>
+        <Route exact={true} path="/appadmin" component={Admin} />
+        <Route component={App}/>
+      </Switch>
+    </Router>
   </React.StrictMode>,
   document.getElementById('root')
 );
