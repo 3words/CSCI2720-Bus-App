@@ -1,4 +1,4 @@
-//const sha256 = require('js-sha256');
+const sha256 = require('js-sha256');
 
 const express = require('express');
 const app = express();
@@ -22,11 +22,15 @@ var UserSchema = mongoose.Schema({
   userName: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
+    min: 4,
+    max: 20
   },
   password: {
     type: String,
-    required: true
+    required: true,
+    min: 64,
+    max: 64
   }
 });
 
@@ -35,21 +39,28 @@ var User = mongoose.model('User', UserSchema);
 app.post('/login', function(req, res) {
   var inputUserName = req.body['uid'];
   var inputPassword = req.body['password'];
-  //var hashPW = sha256(req.body['password'])
-  User.findOne(
-    {
-      userName: inputUserName,
-      password: inputPassword
-    },function(err,result) {
-      if (err) {
-        res.send(err);
-      }
-      if(result != null) {
-        res.send('valid');
-      } else {
-        res.send('not valid');
-      }
-    });
+  //check username and password length
+  if(inputUserName.length >20 || inputUserName.length <4 || inputPassword.legnth > 20 || inputPassword.length < 4)
+  {
+    res.send('not valid');
+  } else {
+    //hashed password
+    var hashPW = sha256(req.body['password']);
+    User.findOne(
+      {
+        userName: inputUserName,
+        password: hashPW
+      },function(err,result) {
+        if (err) {
+          res.send(err);
+        }
+        if(result != null) {
+          res.send('valid');
+        } else {
+          res.send('not valid');
+        }
+      });
+  }
 });
 
 app.listen(process.env.PORT || 8080);
