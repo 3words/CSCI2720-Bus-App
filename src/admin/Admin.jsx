@@ -4,6 +4,11 @@ import axios from 'axios';
 
 class Admin extends React.Component {
   render() {
+    const CreateLocName = useRef()
+    const CreateLoclat = useRef()
+    const CreateLoclon = useRef()
+    const CreateBusArr = useRef()
+    const DeletedLocation = useref()
     const CreateUserName = useRef()
     const CreateUserPW = useRef()
     const SearchUser = useRef()
@@ -12,7 +17,24 @@ class Admin extends React.Component {
     const EditUserPassword = useRef()
     const DeleteUserName = useRef()
     
-    function handleserach(e){
+    function handlesBusData(){
+
+    }
+
+    function HandleNewLocation(){
+
+    }
+
+    function handleupdateLoc(){
+
+    }
+
+    function handledeleteLoc(){
+
+    }
+
+
+    function handleserach(){
       var userName = SearchUser.value;
     app.get('/read', function(req, res) {
       var inputUserName = req.body[userName];
@@ -131,7 +153,23 @@ class Admin extends React.Component {
           </div>
         </div>
         <div className="CRUDLocation">
+          <div>Display Bus Data</div>
+          <button className="logout-button btn btn-primary" onClick={handlesBusData}>Display data</button>
 
+          <div>Create Location Data</div>
+          <div>Location Name: <input ref={CreateLocName} type="text" /></div>
+          <div>Location latitude: <input ref={CreateLoclat} type="text" /></div>
+          <div>Location longitude: <input ref={CreateLoclon} type="text" /></div>
+          <div>Business Arrivial Time: <input ref={CreateBusArr} type="text" /></div>
+          <button className="logout-button btn btn-primary" onClick={HandleNewLocation}>Create Location</button>
+
+          <div>Update Location Data</div>
+          <button className="logout-button btn btn-primary" onClick={handleupdateLoc}>Update Location</button>
+
+
+          <div>Delete Location Data</div>
+          <div>Deleted Location: <input ref={DeletedLocation} type="text" /></div>
+          <button className="logout-button btn btn-primary" onClick={handledeleteLoc}>Delete Location</button>
         </div>
 
         <div className="CRUDUser">
@@ -139,14 +177,17 @@ class Admin extends React.Component {
           <div>New User Name: <input ref={CreateUserName} type="text" /></div>
           <div>New User Password: <input ref={CreateUserPW} type="text" /></div>
           <button className="logout-button btn btn-primary" onClick={handlecreate}>Create Account</button>
+
           <div>Read a user data</div>
           <div>Targeted User Name: <input ref={SearchUser} type="text" /></div>
           <button className="logout-button btn btn-primary" onClick={handleserach}>Search</button>
+
           <div>Edit a user account</div>
           <div>Targeted User Name: <input ref={EditUserName1} type="text" /></div>
           <div>New User Name: <input ref={EditUserName2} type="text" /></div>
           <div>New User Password: <input ref={EditUserPassword} type="text" /></div>
           <button className="logout-button btn btn-primary" onClick={handleEdit}>Edit User Data</button>
+
           <div>Delete a user account</div>          
           <div>Delete User's Name: <input ref={DeleteUserName} type="text" /></div>
           <button className="logout-button btn btn-primary" onClick={handleDelete}>Delete User Data</button>
