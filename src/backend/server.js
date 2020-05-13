@@ -178,7 +178,7 @@ app.patch('/homeLocation', getUserByUsername, async(req, res) => {
   try{ 
     const updatedHomeLocation = await res.user.save();
     res.send("Updated home location for user "+res.user.userName+".<br>\n");
-  }catch{
+  }catch (err) {
     res.status(400).json({ message: err.message });
   }
 });
@@ -190,7 +190,7 @@ app.patch('/changeUserName', getUserByUsername, async(req, res) => {
   try{ 
     const updatedUserName = await res.user.save();
     res.send("Username updated to "+res.user.userName+".<br>\n");
-  }catch{
+  }catch (err) {
     res.status(400).json({ message: err.message });
   }
 });
@@ -203,7 +203,7 @@ app.patch('/changePassword', getUserByUsername, async(req, res) => {
   try{ 
     const updatedPassword = await res.user.save();
     res.send("Updated password for user "+res.user.userName+".<br>\n");
-  }catch{
+  }catch (err) {
     res.status(400).json({ message: err.message });
   }
 });
@@ -212,7 +212,7 @@ app.delete('/deleteUser', getUserByUsername, async(req, res) => {
   try{
       await res.user.remove();
       res.send("The following user has been deleted.\n User Name: "+res.user.userName+"<br>\n");  
-  }catch{
+  }catch (err) {
       res.status(500).json({ message: err.message });
   }
 })
