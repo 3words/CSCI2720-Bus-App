@@ -70,13 +70,17 @@ var RouteSchema = mongoose.Schema({
 var StopSchema = mongoose.Schema({
   loc: {
     type: Schema.Types.ObjectId,
-    ref: 'Location'
+    ref: 'Location',
+    unique: false
   },
   route: {
     type: Schema.Types.ObjectId,
-    ref: 'Route'
+    ref: 'Route',
+    unique: false
   }
 });
+
+StopSchema.index({loc: 1, route: 1}, {unique: true});
 
 var CommentSchema = mongoose.Schema({
   stop: {
@@ -89,6 +93,9 @@ var CommentSchema = mongoose.Schema({
   },
   comment: {
     type: String
+  },
+  timeStamp: {
+    type: Date
   }
 });
 
