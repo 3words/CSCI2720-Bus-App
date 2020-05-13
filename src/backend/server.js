@@ -179,12 +179,14 @@ app.patch('/homeLocation', getUserByUsername, async(req, res) => {
 app.patch('/changeUserName', getUserByUsername, async(req, res) => {
   if (req.body['newUserName'] != null){
     res.user.userName = req.body['newUserName'];
-  }
-  try{ 
-    const updatedUserName = await res.user.save();
-    res.send("Username updated to "+res.user.userName+".<br>\n");
-  }catch (err) {
-    res.status(400).json({ message: err.message });
+    try{ 
+      const updatedUserName = await res.user.save();
+      res.send("Username updated to "+res.user.userName+".<br>\n");
+    }catch (err) {
+      res.status(400).json({ message: err.message });
+    }
+  }else{
+    res.send("Please enter new username");
   }
 });
 
