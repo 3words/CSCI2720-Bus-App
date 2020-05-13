@@ -117,6 +117,16 @@ var Stop = mongoose.model('Stop', StopSchema);
 var Comment = mongoose.model('Comment', CommentSchema);
 var Favourite = mongoose.model('Favourite', FavouriteSchema);
 
+var RouteURL = "https://rt.data.gov.hk/v1/transport/citybus-nwfb/route/CTB/967";
+async function getData(url) {
+  const response = await fetch(url);
+  return response.json();
+}
+async function getRoute() {
+  const data = await getData(URL);
+  console.log(data);
+}
+
 app.post('/login', function(req, res) {
   var inputUserName = req.body['userName'];
   var inputPassword = req.body['password'];
@@ -164,10 +174,6 @@ app.post('/register', function(req, res) {
    };
 });
 
-app.get('/getUser', getUserByUsername, (req, res) => {
-  res.send(res.user);
-})
-
 app.patch('/homeLocation', getUserByUsername, async(req, res) => {
   if (req.body['lat'] != null){
     res.user.homeLocation.lat = req.body['lat'];
@@ -184,7 +190,8 @@ app.patch('/homeLocation', getUserByUsername, async(req, res) => {
 });
 
 app.patch('/changeUserName', getUserByUsername, async(req, res) => {
-  if (req.body['newUserName'] != null){
+  if (req.body['newUserName'] != null)
+    if(req.body['newUserName'].length <20 && req.body['newUserName'].length > 4) {
     res.user.userName = req.body['newUserName'];
     try{ 
       const updatedUserName = await res.user.save();
@@ -198,7 +205,8 @@ app.patch('/changeUserName', getUserByUsername, async(req, res) => {
 });
 
 app.patch('/changePassword', getUserByUsername, async(req, res) => {
-  if (req.body['newPassword'] != null){
+  if (req.body['newPassword'] != null)
+    if(req.body['newPassword'].length < 20 && req.body['newPassword'].length > 4) {
     var hashPW = sha256(req.body['newPassword']);
     res.user.password = hashPW;
       try{ 
@@ -206,10 +214,10 @@ app.patch('/changePassword', getUserByUsername, async(req, res) => {
         res.send("Updated password for user "+res.user.userName+".<br>\n");
       }catch (err) {
         res.status(400).json({ message: err.message });
-      }}
-  else {
-      res.send("Please enter new password");
-    }
+      }
+  }else {
+      res.send("New password not valid");
+  }
 });
 
 app.delete('/deleteUser', getUserByUsername, async(req, res) => {
