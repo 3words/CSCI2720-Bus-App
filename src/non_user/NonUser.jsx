@@ -4,15 +4,15 @@ import axios from 'axios';
 class NonUser extends React.Component {
 
 handleSubmit = (event) => {
-  var uid = event.target["uid"].value;
+  var userName = event.target["userName"].value;
   var pw = event.target["password"].value;
   var returnFunction = this.props.login;
   axios.post('/login', {
-    uid: uid,
+    userName: userName,
     password: pw
   }).then(function(res) {
     if(res.data === "valid") {
-      returnFunction(uid);
+      returnFunction(userName);
     } else {
       alert("Wrong Password!");
     }
@@ -27,7 +27,7 @@ handleSubmit = (event) => {
 
           <div className="form-group">
               <label>Username</label>
-              <input id="uid" type="text" className="form-control" placeholder="Enter username" />
+              <input id="userName" type="text" className="form-control" placeholder="Enter username" />
           </div>
 
           <div className="form-group">

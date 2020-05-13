@@ -31,13 +31,17 @@ var UserSchema = mongoose.Schema({
     required: true,
     min: 64,
     max: 64
+  },
+  homeLocation: {
+    long: Number, default: 0,
+    lat:  Number, default: 0
   }
 });
 
 var User = mongoose.model('User', UserSchema);
 
 app.post('/login', function(req, res) {
-  var inputUserName = req.body['uid'];
+  var inputUserName = req.body['userName'];
   var inputPassword = req.body['password'];
   //check username and password length
   if(inputUserName.length >20 || inputUserName.length <4 || inputPassword.legnth > 20 || inputPassword.length < 4)
@@ -61,6 +65,26 @@ app.post('/login', function(req, res) {
         }
       });
   }
+});
+
+app.post('/register', function(req, res) {
+  var inputUserName = req.body['userName'];
+  var inputPassword = req.body['password'];
+  if(inputUserName.length >20 || inputUserName.length <4 || inputPassword.legnth > 20 || inputPassword.length < 4)
+  {
+    res.send('not valid');
+  } else {
+      var hashPW = sha256(req.body['password']);
+      var e = new User({
+      userName: inputUserName,
+      password: hashPW,
+      });
+      e.save(function(err) {
+          if (err)
+              res.send(err);
+          res.send("Ref: " + e);
+      });
+   };
 });
 
 app.listen(process.env.PORT || 8080);
