@@ -87,4 +87,18 @@ app.post('/register', function(req, res) {
    };
 });
 
+app.post('/homeLocation', async function(req, res) {
+  var inputUserName = req.body['userName'];
+  var long = req.body['long'];
+  var lat = req.body['lat'];
+
+  const e = await User.findOne({ userName: inputUserName });
+  e.homeLocation = {lat, long};
+      e.save(function(err) {
+          if (err)
+              res.send(err);
+          res.send("Ref: " + e);
+      });
+});
+
 app.listen(process.env.PORT || 8080);
