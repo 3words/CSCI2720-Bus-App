@@ -1,0 +1,21 @@
+.header {
+  position: relative;
+  height: 60px;
+  background: #5f98cd;
+  padding-top: 0;
+}
+
+.header .userName {
+  float: right;
+  display: inline-block;
+  color: #fff;
+  font-weight: 600;
+  font-size: 15px;
+  padding-top: 20px;
+  padding-right: 10px;
+}
+
+.header .logout-button {
+  float: right;
+  margin-top: 12px;
+}
