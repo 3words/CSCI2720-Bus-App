@@ -3,6 +3,64 @@ import './Admin.css';
 import axios from 'axios';
 import { render } from 'react-dom';
 
+
+class CreateComment extends React.Component {
+  handleSubmit = (event) => {
+    var userName = event.target["userName"].value;
+    var comments = event.target["comments"].value;
+    var locid = event.target["locationId"].value;
+    var rout = event.target["route"].value;
+    var returnFunction = this.props.addComment;
+    axios.post('/addComment', {
+      comment:comments,      
+      userName: userName,
+      locationId:locid,
+      route: rout
+    }).then(function(res) {
+      if(res.data === "valid") {
+        returnFunction("Create Successfully");
+      } else {
+        alert("Fail to create");
+      }
+    });
+  };
+  
+    render() {
+      return (
+        <div className='CreateComment'>
+          <form onSubmit={this.handleSubmit}>
+            <h1> Create a New Comment for a user </h1>
+  
+            <div className="form-group">
+                <label>User Name:</label>
+                <input id="userName" type="text" className="form-control" placeholder="Enter username" />
+            </div>
+  
+            <div className="form-group">
+                <label>New :</label>
+                <input id="comments" type="text" className="form-control" placeholder="Enter comments" />
+            </div>
+
+            <div className="form-group">
+                <label>New :</label>
+                <input id="locationId" type="text" className="form-control" placeholder="Enter locationId" />
+            </div>
+
+            <div className="form-group">
+                <label>New :</label>
+                <input id="route" type="text" className="form-control" placeholder="Enter routines" />
+            </div>
+
+            <button type="submit" className="btn btn-primary btn-block">Submit</button>
+          </form>
+        </div>
+      );
+    }
+}
+
+
+
+
 class CreateAccount extends React.Component {
 
   handleSubmit = (event) => {
@@ -213,15 +271,11 @@ class Graph extends React.Component{
         />
       ))
     }
-    renderBars(){
-
-    }
 
   render(){
 
     return(
       <div className = "graph-wrapper">
-
         <div className = "graph">
           <BarTextContent/>
           <div className= "bar-lines-container"> 
@@ -264,6 +318,7 @@ render(){
         </div>
         <div className="CRUDLocation">
           <FlushData/>
+          <CreateComment/>
 
         </div>
         <div className="CRUDUser">
