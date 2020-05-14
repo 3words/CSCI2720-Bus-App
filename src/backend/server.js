@@ -4,7 +4,7 @@ const express = require('express');
 const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
+var ObjectId = require('mongodb').ObjectID;
 var mongoose = require('mongoose');
 mongoose.set('useFindAndModify', false);
 mongoose.connect('mongodb://localhost/csci2720');
@@ -385,7 +385,46 @@ async function getUserByUsername(req, res, next) {
   next();
 }
 
-app.get('/allStop', function(req, res) {
+app.get('/allStop',  function(req, res) {
+  let route = req.query.route;
+
+      Route.findOne({route:route},
+      function(err, routeResult){
+        if(err) res.send(err);
+        //res.send(routeResult._id);
+        Stop.find({route:new ObjectId(routeResult._id)}).
+        populate('loc').
+        populate('route').
+        exec(function(err,stopResult){
+          if(err) res.send(err);
+          //loclist = "The following are the events available: <br>\n"+stopResult;
+          if(stopResult!=null) {
+            var jsonStop={};
+            jsonStop["data"]=[]; 
+            for(var i = 0; i < stopResult.length; i++) {
+              var data= {
+                "locID": stopResult[i].loc.locationID,
+                "name" : stopResult[i].loc.name,
+                "long" : stopResult[i].loc.longitude,
+                "lat"  : stopResult[i].loc.latitude,
+                "route": stopResult[i].route.route,
+                "dest" : stopResult[i].route.dest,
+                "orig" : stopResult[i].route.orig,
+                "eta"  : "2020-05-14T17:57:00+08:00"
+              }
+              jsonStop["data"].push(data)
+              //loclist.push("<div>"+stopResult[i]+"</div>");
+          }
+          //res.send(stopResult[0].loc.latitude)
+          res.json(jsonStop);
+          }
+          else res.send("NOT FOUND")
+          
+          
+        })
+      })
+});
+app.get('/allStop1', function(req, res) {
   Stop.find()
     .populate('loc')
     .populate('route')
@@ -400,6 +439,7 @@ app.get('/allStop', function(req, res) {
       }
     });
 });
+
 
 app.post('/addComment', function(req, res) {
   var inputComment = req.body['comment'];

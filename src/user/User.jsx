@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 import './User.css';
-let allRoutes =[967,969]
+let allRoutes =[967, 969, 97, 48, 314, 19, 20, 182, 171, 260]
 
 
 class Content extends React.Component {
@@ -175,12 +175,38 @@ class ListLocation extends React.Component {
 
 class User extends React.Component {
 
+  constructor(props) {
+    super(props);
+    this.state = {
+      showList: false,
+      locationList:"",
+      allInfomation:""
+    };
+  }
 
-  handleListLocations = async (addStateList) => {
+  toggleShowList = (event) => {
+    this.setState({
+      showList:!this.state.showList
+    })  
+}
+changeListLocation = (ele) =>{
+  this.setState({
+    locationList:ele,
+  })
+}
+
+changeallInfomation = (ele) =>{
+  this.setState({
+    allInfomation:ele
+  })
+}
+
+  handleListLocations = async () => {
    // alert(allRoutes.length)
    var eachRoute=[];
-    for (var i =0;i<allRoutes.length;i++){
-      await axios.get('/list',{
+   var fullInfo =[];
+    for (var i =0;i<1;i++){
+      await axios.get('/allStop',{
         params:{
           route : allRoutes[i]
         }
@@ -188,16 +214,16 @@ class User extends React.Component {
       .then(function(res) {
         var obj = JSON.parse(JSON.stringify(res.data))
         //alert(obj.data[0]);
-    
+        fullInfo.push(obj);
         
         for (var i in obj.data){
           const row = (
               <tr>
               <td>{obj.data[i].locID}</td>
               <td>{obj.data[i].name}</td>
-              <td>{obj.data[i].long}</td>
-              <td>{obj.data[i].lat}</td>
-              <td>{obj.data[i].route}</td>
+                <td>{obj.data[i].long}</td>
+                <td>{obj.data[i].lat}</td>
+                <td>{obj.data[i].route}</td>
               <td>{obj.data[i].dest}</td>
               <td>{obj.data[i].orig}</td>
               <td>{obj.data[i].eta}</td>
@@ -206,12 +232,13 @@ class User extends React.Component {
           eachRoute.push(row)
         }
          
-       //addStateList(eachRoute);
-      
+       
+       
      
       });
     }
-    addStateList(eachRoute);
+    this.changeallInfomation(fullInfo);
+    this.changeListLocation(eachRoute);
   };
 
 
@@ -224,10 +251,10 @@ class User extends React.Component {
           <span className="userName">Hello, {this.props.user}</span>
         </div>
 
-        <button className="btn btn-primary" onClick={()=>{this.props.listloc()}}>List all Location</button>
-        <button className="btn btn-primary" onClick={()=>{this.handleListLocations(this.props.changeLocationList)}}>Load List</button>
-        {this.props.showList &&
-          <ListLocation locationList={this.props.locationList}></ListLocation>
+        <button className="btn btn-primary" onClick={()=>{this.toggleShowList()}}>List all Location</button>
+        <button className="btn btn-primary" onClick={()=>{this.handleListLocations()}}>Load List</button>
+        {this.state.showList &&
+          <ListLocation locationList={this.state.locationList}></ListLocation>
         }
       </div>
     );
