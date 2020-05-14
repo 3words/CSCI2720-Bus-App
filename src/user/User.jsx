@@ -203,7 +203,7 @@ class User extends React.Component {
 
   handledetailsInfoBack = ()=>{
     this.setState({
-      singleLocation:!singleLocation,
+      singleLocation:!this.state.singleLocation,
       detailsInfo: ""
     })
   }
@@ -214,8 +214,8 @@ class User extends React.Component {
     .then(function(res){
        var relate = JSON.parse(JSON.stringify(res.data))
        this.setState({
-        singleLocation:!singleLocation,
-        detailsInfo: relate
+        singleLocation:!this.state.singleLocation,
+        detailsInfo:relate
       })
 
     })
