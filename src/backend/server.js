@@ -461,4 +461,51 @@ app.post('/addFavourite', function(req,res) {
   );
 });
 
+app.delete('/deleteFavourite', function(req,res) {
+  var inputUserName = req.body['userName'];
+  var inputLocationId = req.body['locationId'];
+
+  User.findOne(
+    {'userName': inputUserName},
+    function(err, result) {
+      if(err) {
+        res.send(err);
+      }
+      if(result != null) {
+        //find location
+        Location.findOne(
+          {'locationID': inputLocationId},
+          function(err1, result1) {
+            if(err1) {
+              res.send(err1);
+            }
+            if(result1 != null) {
+              //find favourite
+              Favourite.findOne(
+                {
+                  "user": result._id,
+                  "loc": result1._id
+                },
+                function(err2,result2) {
+                  if(err2) {
+                    res.send(err2);
+                  }
+                  if(result2 != null) {
+                    result2.remove().exec();
+                    res.send("Success!");
+                  } else {
+                    res.send("Favourite location does not exists!");
+                  }
+                });
+            } else {
+              res.send("Location does not exists!");
+            }
+          });
+      } else {
+        res.send("User does not exists!");
+      }
+    }
+  );
+})
+
 app.listen(process.env.PORT || 8080);
