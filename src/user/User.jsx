@@ -2,6 +2,7 @@ import React from 'react';
 import axios from 'axios';
 import './User.css';
 import SingleLocation from './SingleLocation';
+
 let allRoutes =[967, 969, 97, 48, 314, 19, 20, 182, 171, 260]
 
 
@@ -176,7 +177,8 @@ class User extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      showList: false,
+      showList: true,
+      showMap: false,
       locationList:"",
       allInfomation:"",
       detailsInfo: "",
@@ -186,9 +188,13 @@ class User extends React.Component {
 
   toggleShowList = (event) => {
     this.setState({
-      showList:!this.state.showList
+      showList:!this.state.showList,
+      showMap:!this.state.showMap
     })
-}
+
+  }
+
+
   changeListLocation = (ele) =>{
     this.setState({
       locationList:ele,
@@ -297,11 +303,12 @@ class User extends React.Component {
           <span className="userName">Hello, {this.props.user}</span>
         </div>
 
-        <button className="btn btn-primary" onClick={()=>{this.toggleShowList()}}>List all Location</button>
+        <button className="btn btn-primary" onClick={()=>{this.toggleShowList()}}>Switch View (List/Map)</button>
         <button className="btn btn-primary" onClick={()=>{this.handleListLocations(this.handleOnClickTableRow)}}>Load List</button>
         {this.state.showList &&
           <ListLocation locationList={this.state.locationList}></ListLocation>
         }
+
         {this.state.singleLocation &&
           <SingleLocation  back={this.handledetailsInfoBack} relatedStop={this.state.detailsInfo}></SingleLocation>
         }
