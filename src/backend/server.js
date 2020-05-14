@@ -421,6 +421,59 @@ app.post('/addComment', function(req, res) {
     });
 });
 
+app.get('/getComment', function(req,res) {
+  var inputLocationId = req.body['locationId'];
+  var inputRoute = req.body['route'];
+  var inputDir = req.body['dir'];
+
+    Location.findOne(
+    {'locationID': inputLocationId},
+    function(err, result) {
+      if(err) {
+        res.send(err);
+      }
+      if(result != null) {
+        Route.findOne(
+          {'route': inputRoute},
+          function(err1, result1) {
+            if(err1) {
+              res.send(err1);
+            }
+            if(result1 != null) {
+              Stop.findOne(
+                {
+                  'loc': result._id,
+                  'route': result1._id
+                },
+                function(err2, result2) {
+                  if(err2) {
+                    res.send(err2);
+                  }
+                  if(result2 != null) {
+                    Comment.find({'stop': result2._id})
+                      .populate('stop')
+                      .populate('user', 'UserName')
+                      .sort('-timeStamp')
+                      .exec(function(err3, results3) {
+                        if(err3) {
+                          res.send(err3);
+                        }
+                        res.send(results3);
+                      });
+                  } else {
+                    res.send("Stop does not exists!");
+                  }
+                });
+            } else {
+              res.send("Route does not exists!");
+            }
+          });
+      } else {
+        res.send("Location does not exists!");
+      }
+    });
+
+})
 
 app.post('/addFavourite', function(req,res) {
   var inputUserName = req.body['userName'];
@@ -523,7 +576,7 @@ app.get('/getFavourite', function(req,res) {
           {'user': result._id},
           function(err2, results2) {
             if(err2) {
-              res.send(err);
+              res.send(err2);
             }
             res.send(results2);
           });
