@@ -318,4 +318,74 @@ app.get('/allStop', function(req, res) {
     });
 });
 
+app.post('/addComment', function(req, res) {
+  var inputComment = req.body['comment'];
+  var inputUserName = req.body['userName'];
+  var inputLocationId = req.body['locationId'];
+  var inputRoute = req.body['route'];
+
+  //match route
+  Route.findOne(
+    {'route': route},
+    function(err, result) {
+      if(err) {
+        res.send(err);
+      }
+      if(result != null) {
+        //match location
+        Location.findOne(
+          {'locationID': inputLocationId},
+          function(err1, result1) {
+            if(err1) {
+              res.send(err1);
+            }
+            if(result1 != null) {
+              // find stop
+              Stop.findOne(
+                {
+                  'loc': result1._id,
+                  'route': resulst._id
+                },
+                function(err2, result2) {
+                  if(err2) {
+                    res.send(err2);
+                  }
+                  if(result2 != null) {
+                    // find user
+                    User.findOne(
+                      {'userName': inputUserName},
+                      function(err3, result3) {
+                        if(err3) {
+                          res.send(err3);
+                        }
+                        if(result3 != null) {
+                          var newComment = new Comment({
+                            'stop': result2._id,
+                            'user': result3._id,
+                            'comment': inputComment,
+                            'timeStamp': new Date()
+                          });
+                          newComment.save(function(err) {
+                            if(err)
+                              res.send(err);
+                            res.send("Success");
+                          });
+                        } else {
+                          res.send("User does not exists!");
+                        }
+                      });
+                  } else {
+                    res.send("Stop does not exists!");
+                  }
+                });
+            } else {
+              res.send("LocationId does not exists!");
+            }
+          });
+      } else {
+        res.send("Route does not exists!");
+      }
+    });
+});
+
 app.listen(process.env.PORT || 8080);
