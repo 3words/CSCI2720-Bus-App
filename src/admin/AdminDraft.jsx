@@ -243,7 +243,7 @@ class FlushData extends React.Component {
       );
     }
 }
-
+/*
 const Bar = ({percent}) => {
   return (
     <div className= "bar" style = {{width: `${percent}%`}}
@@ -290,7 +290,7 @@ class Graph extends React.Component{
   }
 }
 
-
+*/
 
 
 class Admin extends React.Component{
@@ -328,11 +328,7 @@ render(){
           <DeleteAccount/>
 
         </div>
-        <div className="Graph">
-          <div> Place with most comments and favorites</div>
-          <Graph/>
 
-        </div>
 
       </div>
     );
@@ -376,4 +372,9 @@ export default Admin;
 <div>Delete a user account</div>          
 <div>Delete User's Name: <input ref={DeleteUserName} type="text" /></div>
 <button className="logout-button btn btn-primary" onClick={handleDelete}>Delete User Data</button>
+
+<div className="Graph">
+<div> Place with most comments and favorites</div>
+ <Graph/>
+ </div>
 */
