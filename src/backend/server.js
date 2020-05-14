@@ -326,7 +326,7 @@ app.post('/addComment', function(req, res) {
 
   //match route
   Route.findOne(
-    {'route': route},
+    {'route': inputRoute},
     function(err, result) {
       if(err) {
         res.send(err);
