@@ -139,62 +139,33 @@ app.post('/flushData', async function(req, res) {
   });
 
   //update Route database
-  routeURL.forEach(function(value){
-    https.get(value, res => {
-      res.setEncoding("utf8");
-      let body = "";
-      res.on("data", data => {
-        body += data;
-      });
-      res.on("end", async() => {
-          body = JSON.parse(body);
-          try{
-            const filter = {"route": body.data.route};
-            const update = {"dest": body.data.dest_en, "orig": body.data.orig_en};
-            var route = await Route.findOneAndUpdate(filter, update, {
-            new: true,
-            upsert: true
-            });
-          }catch (err){
-            console.log(err);
-          }
+  async function createRoute(){
+    routeURL.forEach(function(value){
+      https.get(value, res => {
+        res.setEncoding("utf8");
+        let body = "";
+        res.on("data", data => {
+          body += data;
         });
-      });
-    });
-
-  //update location database with locationID for all stops
-  routestopURL.forEach(function(value){
-    https.get(value, res => {
-      res.setEncoding("utf8");
-      let body = "";
-      res.on("data", data => {
-        body += data;
-      });
-      res.on("end", async() => {
-          body = JSON.parse(body);
-            var data = body.data;
-            data.forEach(async function(obj) {
-              /*var existLocation = await Location.findOne({locationID: obj.stop});
-              if (existLocation == null){
-                const newLocation = new Location({locationID: obj.stop});
-                const e = await newLocation.save();
-              }*/
-              try{
-              const filter = {"locationID": obj.stop};
-              const update = {"locationID": obj.stop};
-              var route = await Location.findOneAndUpdate(filter, update, {
+        res.on("end", async() => {
+            body = JSON.parse(body);
+            try{
+              const filter = {"route": body.data.route};
+              const update = {"dest": body.data.dest_en, "orig": body.data.orig_en};
+              var route = await Route.findOneAndUpdate(filter, update, {
               new: true,
               upsert: true
               });
-              } catch (err){
-                console.log(err);
-              }
-            });
+            }catch (err){
+              console.log(err);
+            }
+          });
         });
       });
-    });
+  }
 
-    //update stop database
+  //update location database with locationID for all stops
+  async function createLocation(){
     routestopURL.forEach(function(value){
       https.get(value, res => {
         res.setEncoding("utf8");
@@ -206,45 +177,29 @@ app.post('/flushData', async function(req, res) {
             body = JSON.parse(body);
               var data = body.data;
               data.forEach(async function(obj) {
-                  var location = await Location.findOne({locationID: obj.stop});
-                  var route = await Route.findOne({route: obj.route});
-                  /*
-                  var newStop = new Stop ({
-                    loc: location._id,
-                    route: route._id,
-                    dir: obj.dir,
-                    seq: obj.seq
-                  });
-                  const e = await newStop.save(function(err) {
-                    if (err)
-                      console.log(err);           
-                  });*/
-                  try{
-                  const filter = {"loc": location._id, "route": route._id, "dir": obj.dir};
-                  const update = {"seq": obj.seq};
-                  var route = await Stop.findOneAndUpdate(filter, update, {
+                /*var existLocation = await Location.findOne({locationID: obj.stop});
+                  if (existLocation == null){
+                  const newLocation = new Location({locationID: obj.stop});
+                  const e = await newLocation.save();
+                */
+                try{
+                  const filter = {"locationID": obj.stop};
+                  const update = {};
+                  var e = await Location.findOneAndUpdate(filter, update, {
                   new: true,
                   upsert: true
                   });
-                  }catch (err){
-                    console.log(err);
-                  }
-              })
+                } catch (err){
+                  console.log(err);
+                }
+              });
           });
         });
       });
-
-      //get all location ID and generate URL for API
-      var allLocationID = await Location.find({},'locationID');
-      allLocationID.forEach(function(obj){
-        locationList.push(obj.locationID);
-      })
-      locationList.forEach(function(value){
-        stopURL.push("https://rt.data.gov.hk/v1/transport/citybus-nwfb/stop/00"+value);
-      })
-
-      //update location database with details
-      stopURL.forEach(function(value){
+  }
+    //update stop database
+    async function createStop(){
+      routestopURL.forEach(function(value){
         https.get(value, res => {
           res.setEncoding("utf8");
           let body = "";
@@ -253,18 +208,81 @@ app.post('/flushData', async function(req, res) {
           });
           res.on("end", async() => {
               body = JSON.parse(body);
-              try{
-                const filter = {"locationID": body.data.stop};
-                const update = {"name": body.data.name_en, "longitude": body.data.long, "latitude": body.data.lat};
-                var route = await Location.findOneAndUpdate(filter, update);
-              }catch (err){
-                console.log(err);
-              }
+                var data = body.data;
+                data.forEach(async function(obj) {
+                    var findLocation = await Location.findOne({locationID: obj.stop});
+                    var findRoute = await Route.findOne({route: obj.route});
+                    /*
+                    var newStop = new Stop ({
+                      loc: location._id,
+                      route: route._id,
+                      dir: obj.dir,
+                      seq: obj.seq
+                    });
+                    const e = await newStop.save(function(err) {
+                      if (err)
+                        console.log(err);           
+                    });*/
+                    try{
+                    const filter = {"loc": findLocation._id, "route": findRoute._id, "dir": obj.dir};
+                    const update = {"seq": obj.seq};
+                    var stop = await Stop.findOneAndUpdate(filter, update, {
+                    new: true,
+                    upsert: true
+                    });
+                    }catch (err){
+                      console.log(err);
+                    }
+                })
             });
           });
         });
+    }
 
-  res.send("Data flush successful");
+      //get all location ID and generate URL for API
+      async function updateLocation(){
+        var allLocationID = await Location.find({},'locationID');
+        allLocationID.forEach(function(obj){
+          locationList.push(obj.locationID);
+        })
+        locationList.forEach(function(value){
+          stopURL.push("https://rt.data.gov.hk/v1/transport/citybus-nwfb/stop/00"+value);
+        })
+
+        //update location database with details
+        stopURL.forEach(function(value){
+          https.get(value, res => {
+            res.setEncoding("utf8");
+            let body = "";
+            res.on("data", data => {
+              body += data;
+            });
+            res.on("end", async() => {
+                body = JSON.parse(body);
+                try{
+                  const filter = {"locationID": body.data.stop};
+                  const update = {"name": body.data.name_en, "longitude": body.data.long, "latitude": body.data.lat};
+                  var updateLocation = await Location.findOneAndUpdate(filter, update, {
+                  new: true,
+                  upsert: true
+                  });
+                }catch (err){
+                  console.log(err);
+                }
+              });
+            });
+          });
+      }
+
+      async function flushData(){
+        const FirstStep = await createRoute();
+        const SecondStep = await createLocation();
+        const ThirdStep = await createStop();
+        const LastStep = await updateLocation();
+      };
+
+  flushData();
+  res.send("Data flush successful!");
 });
 
 app.post('/login', function(req, res) {
@@ -273,7 +291,7 @@ app.post('/login', function(req, res) {
   //check username and password length
   if(inputUserName.length >20 || inputUserName.length <4 || inputPassword.legnth > 20 || inputPassword.length < 4)
   {
-    res.send('not valid');
+    res.send('Invalid input!');
   } else {
     //hashed password
     var hashPW = sha256(req.body['password']);
@@ -286,9 +304,9 @@ app.post('/login', function(req, res) {
           res.send(err);
         }
         if(result != null) {
-          res.send('valid');
+          res.send('Successful Login!');
         } else {
-          res.send('not valid');
+          res.send('Invalid input!');
         }
       });
   }
@@ -299,7 +317,7 @@ app.post('/register', function(req, res) {
   var inputPassword = req.body['password'];
   if(inputUserName.length >20 || inputUserName.length <4 || inputPassword.legnth > 20 || inputPassword.length < 4)
   {
-    res.send('not valid');
+    res.send('Invalid input!');
   } else {
       var hashPW = sha256(req.body['password']);
       var e = new User({
@@ -340,7 +358,7 @@ app.patch('/changeUserName', getUserByUsername, async(req, res) => {
       res.status(400).json({ message: err.message });
     }
   }else{
-    res.send("Please enter new username");
+    res.send("Please enter new username!");
   }
 });
 
@@ -356,7 +374,7 @@ app.patch('/changePassword', getUserByUsername, async(req, res) => {
         res.status(400).json({ message: err.message });
       }
   }else {
-      res.send("New password not valid");
+      res.send("New password not valid!");
   }
 });
 
@@ -375,7 +393,7 @@ async function getUserByUsername(req, res, next) {
   try {
     user = await User.findOne({ userName: inputUserName });
     if (user == null) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: 'User not found!' });
     }
   } catch (err) {
     return res.status(500).json({ message: err.message });
@@ -424,6 +442,34 @@ app.get('/allStop',  function(req, res) {
         })
       })
 });
+
+app.patch('/changeLocationName', async(req, res) => {
+  if (req.body['newLocationName'] != null && req.body['oldLocationName'] != null) {
+    var newLocationName = req.body['newLocationName'];
+    var oldLocationName = req.body['oldLocationName'];
+    var location;
+    try{
+      location = await Location.findOne({name: oldLocationName });
+      if (location != null){
+        try{
+          location.name = newLocationName;
+          const updatedLocationName = await location.save();
+          res.send("Location name updated to "+location.name+".<br>\n");
+        }catch (err){
+          res.send(err);
+        }
+      }
+      else {
+        res.send("Location not found!");
+      }
+    }catch (err) {
+      res.status(400).json({message: err.message });
+    }
+  }else{
+    res.status(400).send("Please fill in all fields!");
+  }
+});
+
 app.get('/allStop1', function(req, res) {
   Stop.find()
     .populate('loc')
