@@ -327,7 +327,8 @@ app.post('/register', function(req, res) {
       e.save(function(err) {
           if (err)
               res.send(err);
-          res.send("User successfully registered.");
+          else
+              res.send("User successfully registered.");
       });
    };
 });
