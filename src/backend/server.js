@@ -445,8 +445,8 @@ app.get('/allLocation', function(req, res) {
 });
 
 app.get('/relatedStop', async function(req, res) {
-  var locationName = req.body['locationName'];
-  var foundlocation = await Location.findOne({name: locationName});
+  var locationID = req.body['locationID'];
+  var foundlocation = await Location.findOne({locationID: locationID});
   var location_Id = foundlocation._id;
   Stop.find({loc: location_Id})
   .populate('loc')
