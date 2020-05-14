@@ -421,7 +421,7 @@ app.post('/addComment', function(req, res) {
     });
 });
 
-app.post('addFavourite', function(req,res) {
+app.post('/addFavourite', function(req,res) {
   var inputUserName = req.body['userName'];
   var inputLocationId = req.body['locationId'];
 
