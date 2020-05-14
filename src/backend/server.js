@@ -444,6 +444,22 @@ app.get('/allLocation', function(req, res) {
   });
 });
 
+app.get('/relatedStop', async function(req, res) {
+  var locationName = req.body['locationName'];
+  var foundlocation = await Location.findOne({name: locationName});
+  var location_Id = foundlocation._id;
+  Stop.find({loc: location_Id})
+  .populate('loc')
+  .populate('route')
+  .exec(function(err, result) {
+    if(err) {
+      res.send(err);
+    } else {
+      res.send(result);
+    }
+  });
+});
+
 app.get('/allStop', function(req, res) {
   Stop.find()
     .populate('loc')
