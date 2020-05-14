@@ -421,6 +421,7 @@ app.post('/addComment', function(req, res) {
     });
 });
 
+
 app.post('/addFavourite', function(req,res) {
   var inputUserName = req.body['userName'];
   var inputLocationId = req.body['locationId'];
@@ -506,6 +507,30 @@ app.delete('/deleteFavourite', function(req,res) {
       }
     }
   );
+})
+
+app.get('/getFavourite', function(req,res) {
+  var inputUserName = req.body['userName'];
+
+  User.findOne(
+    {'userName': inputUserName},
+    function(err, result) {
+      if(err) {
+        res.send(err);
+      }
+      if(result != null) {
+        Favourite.find(
+          {'user': result._id},
+          function(err2, results2) {
+            if(err2) {
+              res.send(err);
+            }
+            res.send(results2);
+          });
+      } else {
+        res.send("User does not exists!");
+      }
+    });
 })
 
 app.listen(process.env.PORT || 8080);
