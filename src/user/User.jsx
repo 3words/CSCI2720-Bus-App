@@ -19,6 +19,7 @@ class Content extends React.Component {
 }
 
 class ListLocation extends React.Component {
+
   sortTableAlpha = (n) => {
     var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
     table = document.getElementById("table");
@@ -31,6 +32,7 @@ class ListLocation extends React.Component {
         shouldSwitch = false;
         x = rows[i].getElementsByTagName("TD")[n];
         y = rows[i + 1].getElementsByTagName("TD")[n];
+        
         if (dir == "asc") {
           if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
             shouldSwitch= true;
@@ -68,6 +70,7 @@ class ListLocation extends React.Component {
         shouldSwitch = false;
         x = rows[i].getElementsByTagName("TD")[n];
         y = rows[i + 1].getElementsByTagName("TD")[n];
+        console.log(x.innerHTML)
         if (dir == "asc") {
           if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
             shouldSwitch= true;
@@ -157,12 +160,6 @@ class ListLocation extends React.Component {
       <thead><tr>
       <th title="Field #1" onContextMenu={this.handleContextClick} onClick={()=>this.sortTableNum(0)}>LocID</th>
       <th title="Field #2" onContextMenu={this.handleContextClick} onClick={()=>this.sortTableAlpha(1)}>Name</th>
-      <th title="Field #3" onContextMenu={this.handleContextClick} onClick={()=>this.sortTableNum(2)}>Longitude</th>
-      <th title="Field #4" onContextMenu={this.handleContextClick} onClick={()=>this.sortTableNum(3)}>Latitude</th>
-      <th title="Field #5" onContextMenu={this.handleContextClick} onClick={()=>this.sortTableNum(4)}>Route</th>
-      <th title="Field #6" onContextMenu={this.handleContextClick} onClick={()=>this.sortTableAlpha(5)}>Dest</th>
-      <th title="Field #7" onContextMenu={this.handleContextClick} onClick={()=>this.sortTableAlpha(6)}>Orig</th>
-      <th title="Field #8" onContextMenu={this.handleContextClick} onClick="">ETA</th>
       </tr></thead>
       <Content locationList={this.props.locationList}></Content>
     </table>
@@ -180,7 +177,9 @@ class User extends React.Component {
     this.state = {
       showList: false,
       locationList:"",
-      allInfomation:""
+      allInfomation:"",
+      detailsInfo: "",
+      singleLocation: false
     };
   }
 
@@ -189,19 +188,73 @@ class User extends React.Component {
       showList:!this.state.showList
     })  
 }
-changeListLocation = (ele) =>{
-  this.setState({
-    locationList:ele,
-  })
-}
+  changeListLocation = (ele) =>{
+    this.setState({
+      locationList:ele,
+    })
+  }
 
-changeallInfomation = (ele) =>{
-  this.setState({
-    allInfomation:ele
-  })
-}
+  changeallInfomation = (ele) =>{
+    this.setState({
+      allInfomation:ele
+    })
+  }
 
-  handleListLocations = async () => {
+
+  handledetailsInfoBack = ()=>{
+    this.setState({
+      singleLocation:!singleLocation,
+      detailsInfo: ""
+    })
+  }
+  
+  handleOnClickTableRow = (event,i) => {
+    console.log(this.state.allInfomation[i]);
+    axios.get('/relatedStop')
+    .then(function(res){
+       var relate = JSON.parse(JSON.stringify(res.data))
+       this.setState({
+        singleLocation:!singleLocation,
+        detailsInfo: relate
+      })
+
+    })
+
+
+    
+  }
+
+  
+  handleListLocations = async (tableOnclick) => {
+    // alert(allRoutes.length)
+    var eachRoute=[];
+    var fullInfo =[];
+       await axios.get('/allLocation')
+       .then(function(res) {
+         var obj = JSON.parse(JSON.stringify(res.data))
+         
+         fullInfo = obj;
+         //console.log(obj);
+         for (var i in obj){
+           const rowidx = i;
+           const row = (
+               <tr onClick={(event) => tableOnclick(event,rowidx)}>
+               <td>{obj[i].locationID}</td>
+               <td>{obj[i].name}</td>
+               </tr>
+           );
+     
+           
+           eachRoute.push(row)
+         }
+     
+       });
+  
+     this.changeallInfomation(fullInfo);
+     this.changeListLocation(eachRoute);
+   };
+  /*
+  handleListLocations = async (tableOnclick) => {
    // alert(allRoutes.length)
    var eachRoute=[];
    var fullInfo =[];
@@ -217,30 +270,22 @@ changeallInfomation = (ele) =>{
         fullInfo.push(obj);
         
         for (var i in obj.data){
+          const rowidx = i;
           const row = (
-              <tr>
+              <tr onClick={(event) => tableOnclick(event,rowidx)}>
               <td>{obj.data[i].locID}</td>
               <td>{obj.data[i].name}</td>
-                <td>{obj.data[i].long}</td>
-                <td>{obj.data[i].lat}</td>
-                <td>{obj.data[i].route}</td>
-              <td>{obj.data[i].dest}</td>
-              <td>{obj.data[i].orig}</td>
-              <td>{obj.data[i].eta}</td>
               </tr>
           );
           eachRoute.push(row)
         }
-         
-       
-       
-     
+    
       });
     }
     this.changeallInfomation(fullInfo);
     this.changeListLocation(eachRoute);
   };
-
+*/
 
 
   render() {
@@ -252,9 +297,12 @@ changeallInfomation = (ele) =>{
         </div>
 
         <button className="btn btn-primary" onClick={()=>{this.toggleShowList()}}>List all Location</button>
-        <button className="btn btn-primary" onClick={()=>{this.handleListLocations()}}>Load List</button>
+        <button className="btn btn-primary" onClick={()=>{this.handleListLocations(this.handleOnClickTableRow)}}>Load List</button>
         {this.state.showList &&
           <ListLocation locationList={this.state.locationList}></ListLocation>
+        }
+        {this.state.singleLocation &&
+          <SingleLocation  back={this.handledetailsInfoBack} relatedStop={this.state.detailsInfo}></SingleLocation>
         }
       </div>
     );
