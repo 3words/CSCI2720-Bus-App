@@ -36,7 +36,7 @@ handleSubmit = (event) => {
               <input id="password" type="password" className="form-control" placeholder="Enter password" />
           </div>
 
-          <button type="submit" className="btn btn-primary btn-block">Submit</button>
+          <button className="btn btn-primary btn-block">Submit</button>
         </form>
         <br/>
         <Link to='/appadmin'>Login as admin</Link>

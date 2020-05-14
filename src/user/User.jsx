@@ -1,19 +1,20 @@
 import React from 'react';
 import axios from 'axios';
 import './User.css';
+import SingleLocation from './SingleLocation';
 let allRoutes =[967, 969, 97, 48, 314, 19, 20, 182, 171, 260]
 
 
 class Content extends React.Component {
 
-  
+
 
   render() {
     return (
       <tbody>
         {this.props.locationList}
       </tbody>
-        
+
     );
   }
 }
@@ -24,7 +25,7 @@ class ListLocation extends React.Component {
     var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
     table = document.getElementById("table");
     switching = true;
-    dir = "asc"; 
+    dir = "asc";
     while (switching) {
       switching = false;
       rows = table.rows;
@@ -32,7 +33,7 @@ class ListLocation extends React.Component {
         shouldSwitch = false;
         x = rows[i].getElementsByTagName("TD")[n];
         y = rows[i + 1].getElementsByTagName("TD")[n];
-        
+
         if (dir == "asc") {
           if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
             shouldSwitch= true;
@@ -48,7 +49,7 @@ class ListLocation extends React.Component {
       if (shouldSwitch) {
         rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
         switching = true;
-        switchcount ++;      
+        switchcount ++;
       } else {
         if (switchcount == 0 && dir == "asc") {
           dir = "desc";
@@ -62,7 +63,7 @@ class ListLocation extends React.Component {
     var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
     table = document.getElementById("table");
     switching = true;
-    dir = "asc"; 
+    dir = "asc";
     while (switching) {
       switching = false;
       rows = table.rows;
@@ -86,7 +87,7 @@ class ListLocation extends React.Component {
       if (shouldSwitch) {
         rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
         switching = true;
-        switchcount ++;      
+        switchcount ++;
       } else {
         if (switchcount == 0 && dir == "asc") {
           dir = "desc";
@@ -110,7 +111,7 @@ class ListLocation extends React.Component {
         } else {
           tr[i].style.display = "none";
         }
-      }       
+      }
     }
   }
 
@@ -163,8 +164,8 @@ class ListLocation extends React.Component {
       </tr></thead>
       <Content locationList={this.props.locationList}></Content>
     </table>
-  
-    
+
+
     );
   }
 }
@@ -186,7 +187,7 @@ class User extends React.Component {
   toggleShowList = (event) => {
     this.setState({
       showList:!this.state.showList
-    })  
+    })
 }
   changeListLocation = (ele) =>{
     this.setState({
@@ -207,7 +208,7 @@ class User extends React.Component {
       detailsInfo: ""
     })
   }
-  
+
   handleOnClickTableRow = (event,i) => {
     console.log(this.state.allInfomation[i]);
     axios.get('/relatedStop')
@@ -221,10 +222,10 @@ class User extends React.Component {
     })
 
 
-    
+
   }
 
-  
+
   handleListLocations = async (tableOnclick) => {
     // alert(allRoutes.length)
     var eachRoute=[];
@@ -232,7 +233,7 @@ class User extends React.Component {
        await axios.get('/allLocation')
        .then(function(res) {
          var obj = JSON.parse(JSON.stringify(res.data))
-         
+
          fullInfo = obj;
          //console.log(obj);
          for (var i in obj){
@@ -243,13 +244,13 @@ class User extends React.Component {
                <td>{obj[i].name}</td>
                </tr>
            );
-     
-           
+
+
            eachRoute.push(row)
          }
-     
+
        });
-  
+
      this.changeallInfomation(fullInfo);
      this.changeListLocation(eachRoute);
    };
@@ -268,7 +269,7 @@ class User extends React.Component {
         var obj = JSON.parse(JSON.stringify(res.data))
         //alert(obj.data[0]);
         fullInfo.push(obj);
-        
+
         for (var i in obj.data){
           const rowidx = i;
           const row = (
@@ -279,7 +280,7 @@ class User extends React.Component {
           );
           eachRoute.push(row)
         }
-    
+
       });
     }
     this.changeallInfomation(fullInfo);
