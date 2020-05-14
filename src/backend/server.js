@@ -4,7 +4,7 @@ const express = require('express');
 const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-var ObjectId = require('mongodb').ObjectID;
+
 var mongoose = require('mongoose');
 mongoose.set('useFindAndModify', false);
 mongoose.connect('mongodb://localhost/csci2720');
@@ -282,7 +282,7 @@ app.post('/flushData', async function(req, res) {
       };
 
   flushData();
-  res.send("Data flush successful!");
+  res.send("Data flush successful");
 });
 
 app.post('/login', function(req, res) {
@@ -291,7 +291,7 @@ app.post('/login', function(req, res) {
   //check username and password length
   if(inputUserName.length >20 || inputUserName.length <4 || inputPassword.legnth > 20 || inputPassword.length < 4)
   {
-    res.send('Invalid input!');
+    res.send('not valid');
   } else {
     //hashed password
     var hashPW = sha256(req.body['password']);
@@ -304,9 +304,9 @@ app.post('/login', function(req, res) {
           res.send(err);
         }
         if(result != null) {
-          res.send('Successful Login!');
+          res.send('valid');
         } else {
-          res.send('Invalid input!');
+          res.send('not valid');
         }
       });
   }
@@ -317,7 +317,7 @@ app.post('/register', function(req, res) {
   var inputPassword = req.body['password'];
   if(inputUserName.length >20 || inputUserName.length <4 || inputPassword.legnth > 20 || inputPassword.length < 4)
   {
-    res.send('Invalid input!');
+    res.send('not valid');
   } else {
       var hashPW = sha256(req.body['password']);
       var e = new User({
@@ -325,9 +325,11 @@ app.post('/register', function(req, res) {
       password: hashPW,
       });
       e.save(function(err) {
-          if (err)
+          if (err) {
               res.send(err);
-          res.send("User successfully registered.");
+          } else {
+            res.send("User successfully registered.");
+          }
       });
    };
 });
@@ -353,12 +355,12 @@ app.patch('/changeUserName', getUserByUsername, async(req, res) => {
     res.user.userName = req.body['newUserName'];
     try{
       const updatedUserName = await res.user.save();
-      res.send("Username updated to "+res.user.userName+".<br>\n");
+      res.send("valid");
     }catch (err) {
-      res.status(400).json({ message: err.message });
+      res.send(err);
     }
   }else{
-    res.send("Please enter new username!");
+    res.send("Please enter new username");
   }
 });
 
@@ -369,21 +371,21 @@ app.patch('/changePassword', getUserByUsername, async(req, res) => {
     res.user.password = hashPW;
       try{
         const updatedPassword = await res.user.save();
-        res.send("Updated password for user "+res.user.userName+".<br>\n");
+        res.send("valid");
       }catch (err) {
-        res.status(400).json({ message: err.message });
+        res.send("invalid");
       }
   }else {
-      res.send("New password not valid!");
+      res.send("invalid");
   }
 });
 
-app.delete('/deleteUser', getUserByUsername, async(req, res) => {
+app.delete('/deleteUser',  async(req, res) => {
   try{
       await res.user.remove();
-      res.send("The following user has been deleted.\n User Name: "+res.user.userName+"<br>\n");
+      res.send("valid");
   }catch (err) {
-      res.status(500).json({ message: err.message });
+      res.send("invalid");
   }
 })
 
@@ -393,84 +395,17 @@ async function getUserByUsername(req, res, next) {
   try {
     user = await User.findOne({ userName: inputUserName });
     if (user == null) {
-      return res.status(404).json({ message: 'User not found!' });
+      return res.send("User not found");
     }
   } catch (err) {
-    return res.status(500).json({ message: err.message });
+    return res.send("invalid");
   }
 
   res.user = user;
   next();
 }
 
-app.get('/allStop',  function(req, res) {
-  let route = req.query.route;
-
-      Route.findOne({route:route},
-      function(err, routeResult){
-        if(err) res.send(err);
-        //res.send(routeResult._id);
-        Stop.find({route:new ObjectId(routeResult._id)}).
-        populate('loc').
-        populate('route').
-        exec(function(err,stopResult){
-          if(err) res.send(err);
-          //loclist = "The following are the events available: <br>\n"+stopResult;
-          if(stopResult!=null) {
-            var jsonStop={};
-            jsonStop["data"]=[]; 
-            for(var i = 0; i < stopResult.length; i++) {
-              var data= {
-                "locID": stopResult[i].loc.locationID,
-                "name" : stopResult[i].loc.name,
-                "long" : stopResult[i].loc.longitude,
-                "lat"  : stopResult[i].loc.latitude,
-                "route": stopResult[i].route.route,
-                "dest" : stopResult[i].route.dest,
-                "orig" : stopResult[i].route.orig,
-                "eta"  : "2020-05-14T17:57:00+08:00"
-              }
-              jsonStop["data"].push(data)
-              //loclist.push("<div>"+stopResult[i]+"</div>");
-          }
-          //res.send(stopResult[0].loc.latitude)
-          res.json(jsonStop);
-          }
-          else res.send("NOT FOUND")
-          
-          
-        })
-      })
-});
-
-app.patch('/changeLocationName', async(req, res) => {
-  if (req.body['newLocationName'] != null && req.body['oldLocationName'] != null) {
-    var newLocationName = req.body['newLocationName'];
-    var oldLocationName = req.body['oldLocationName'];
-    var location;
-    try{
-      location = await Location.findOne({name: oldLocationName });
-      if (location != null){
-        try{
-          location.name = newLocationName;
-          const updatedLocationName = await location.save();
-          res.send("Location name updated to "+location.name+".<br>\n");
-        }catch (err){
-          res.send(err);
-        }
-      }
-      else {
-        res.send("Location not found!");
-      }
-    }catch (err) {
-      res.status(400).json({message: err.message });
-    }
-  }else{
-    res.status(400).send("Please fill in all fields!");
-  }
-});
-
-app.get('/allStop1', function(req, res) {
+app.get('/allStop', function(req, res) {
   Stop.find()
     .populate('loc')
     .populate('route')
@@ -485,7 +420,6 @@ app.get('/allStop1', function(req, res) {
       }
     });
 });
-
 
 app.post('/addComment', function(req, res) {
   var inputComment = req.body['comment'];
