@@ -160,40 +160,25 @@ class ChangeUserPW extends React.Component {
   }
 }
 
-class UpdateLocation extends React.Component {
+class FlushData extends React.Component {
 
   handleSubmit = (event) => {
-    var longitude = event.target["long"].value;
-    var latitude = event.target["lat"].value;
-    var returnFunction = this.props.register;
-    axios.post('/homeLocation', {
-      lat: latitude,
-      long: longitude
+    var returnFunction = this.props.flushData;
+    axios.post('/flushData', {
     }).then(function(res) {
       if(res.data === "valid") {
-        returnFunction("Update Successfully");
+        returnFunction("Flush Successfully");
       } else {
-        alert("Fail to update");
+        alert("Fail to flush");
       }
     });
   };
   
     render() {
       return (
-        <div className='updatelocation'>
+        <div className='FlushData'>
           <form onSubmit={this.handleSubmit}>
-            <h1> Update a location </h1>
-  
-            <div className="form-group">
-                <label>longitude:</label>
-                <input id="long" type="text" className="form-control" placeholder="Enter longitude" />
-            </div>
-  
-            <div className="form-group">
-                <label>latitude:</label>
-                <input id="lat" type="text" className="form-control" placeholder="Enter latitude" />
-            </div>
-  
+            <h1> FlushData </h1> 
             <button type="submit" className="btn btn-primary btn-block">Submit</button>
           </form>
         </div>
@@ -226,7 +211,7 @@ render(){
           <span className="userName">Welcome, Admin</span>
         </div>
         <div className="CRUDLocation">
-          <UpdateLocation/>
+          <FlushData/>
 
         </div>
         <div className="CRUDUser">
