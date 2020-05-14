@@ -125,11 +125,13 @@ var Comment = mongoose.model('Comment', CommentSchema);
 var Favourite = mongoose.model('Favourite', FavouriteSchema);
 
 
-app.post('/flushData', function(req, res) {
+app.post('/flushData', async function(req, res) {
   var routeURL = [];
   var routestopURL = [];
+  var stopURL = [];
+  var locationList = [];
   //Hard code route number if fixed
-  var routeNo = [967];/* 969, 97, 48, 314, 19, 20, 182, 171, 260];*/
+  var routeNo = [967, 969, 97, 48, 314, 19, 20, 182, 171, 260];
   routeNo.forEach(function(value){
     routeURL.push("https://rt.data.gov.hk/v1/transport/citybus-nwfb/route/CTB/"+value);
     routestopURL.push("https://rt.data.gov.hk/v1/transport/citybus-nwfb/route-stop/CTB/"+value+"/inbound");
@@ -160,7 +162,7 @@ app.post('/flushData', function(req, res) {
       });
     });
 
-  //update Stop database
+  //update location database with locationID for all stops
   routestopURL.forEach(function(value){
     https.get(value, res => {
       res.setEncoding("utf8");
@@ -170,40 +172,97 @@ app.post('/flushData', function(req, res) {
       });
       res.on("end", async() => {
           body = JSON.parse(body);
-          try{
             var data = body.data;
-            //loop through all data
             data.forEach(async function(obj) {
-              console.log(obj.stop);
-              var existLocation = await Location.findOne({locationID: obj.stop});
-              console.log(existLocation);
+              /*var existLocation = await Location.findOne({locationID: obj.stop});
               if (existLocation == null){
-                console.log("DB update");
                 const newLocation = new Location({locationID: obj.stop});
-                const e = await newLocation.save()(function(err) {
-                  if (err)
-                    console.log(err);
-                });
-              }
-
-              /*
-              var newStop = new Stop ({
-                loc: existLocation._id,
-                route: existRoute._id,
-                dir: obj.dir,
-                seq: obj.seq
+                const e = await newLocation.save();
+              }*/
+              try{
+              const filter = {"locationID": obj.stop};
+              const update = {"locationID": obj.stop};
+              var route = await Location.findOneAndUpdate(filter, update, {
+              new: true,
+              upsert: true
               });
-              newStop.save(function(err) {
-                if (err)
-                  console.log(err);
-              })*/
+              } catch (err){
+                console.log(err);
+              }
             });
-          } catch (err){
-            console.log(err);
-          }
         });
       });
     });
+
+    //update stop database
+    routestopURL.forEach(function(value){
+      https.get(value, res => {
+        res.setEncoding("utf8");
+        let body = "";
+        res.on("data", data => {
+          body += data;
+        });
+        res.on("end", async() => {
+            body = JSON.parse(body);
+              var data = body.data;
+              data.forEach(async function(obj) {
+                  var location = await Location.findOne({locationID: obj.stop});
+                  var route = await Route.findOne({route: obj.route});
+                  /*
+                  var newStop = new Stop ({
+                    loc: location._id,
+                    route: route._id,
+                    dir: obj.dir,
+                    seq: obj.seq
+                  });
+                  const e = await newStop.save(function(err) {
+                    if (err)
+                      console.log(err);           
+                  });*/
+                  try{
+                  const filter = {"loc": location._id, "route": route._id, "dir": obj.dir};
+                  const update = {"seq": obj.seq};
+                  var route = await Stop.findOneAndUpdate(filter, update, {
+                  new: true,
+                  upsert: true
+                  });
+                  }catch (err){
+                    console.log(err);
+                  }
+              })
+          });
+        });
+      });
+
+      //get all location ID and generate URL for API
+      var allLocationID = await Location.find({},'locationID');
+      allLocationID.forEach(function(obj){
+        locationList.push(obj.locationID);
+      })
+      locationList.forEach(function(value){
+        stopURL.push("https://rt.data.gov.hk/v1/transport/citybus-nwfb/stop/00"+value);
+      })
+
+      //update location database with details
+      stopURL.forEach(function(value){
+        https.get(value, res => {
+          res.setEncoding("utf8");
+          let body = "";
+          res.on("data", data => {
+            body += data;
+          });
+          res.on("end", async() => {
+              body = JSON.parse(body);
+              try{
+                const filter = {"locationID": body.data.stop};
+                const update = {"name": body.data.name_en, "longitude": body.data.long, "latitude": body.data.lat};
+                var route = await Location.findOneAndUpdate(filter, update);
+              }catch (err){
+                console.log(err);
+              }
+            });
+          });
+        });
 
   res.send("Data flush successful");
 });
