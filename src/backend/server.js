@@ -148,7 +148,7 @@ app.post('/flushData', function(req, res) {
           body = JSON.parse(body);
           try{
             const filter = {"route": body.data.route};
-            const update = {"dest": body.data.dest_en, "orig": body.data.orig_en};  
+            const update = {"dest": body.data.dest_en, "orig": body.data.orig_en};
             var route = await Route.findOneAndUpdate(filter, update, {
             new: true,
             upsert: true
@@ -158,7 +158,7 @@ app.post('/flushData', function(req, res) {
           }
         });
       });
-    }); 
+    });
 
   //update Stop database (In Progress)
   routestopURL.forEach(function(value){
@@ -179,9 +179,9 @@ app.post('/flushData', function(req, res) {
           }
         });
       });
-    }); 
+    });
 
-  res.send("Data flush successful"); 
+  res.send("Data flush successful");
 });
 
 app.post('/login', function(req, res) {
@@ -301,5 +301,21 @@ async function getUserByUsername(req, res, next) {
   res.user = user;
   next();
 }
+
+app.get('/allStop', function(req, res) {
+  Stop.find()
+    .populate('loc')
+    .populate('route')
+    .sort('route')
+    .sort('dir')
+    .sort('seq')
+    .exec(function(err, result) {
+      if(err) {
+        res.send(err);
+      } else {
+        res.send(result);
+      }
+    });
+});
 
 app.listen(process.env.PORT || 8080);
