@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import './Admin.css';
 import axios from 'axios';
 import { render } from 'react-dom';
+import { Link } from 'react-router-dom';
 
 class CreateAccount extends React.Component {
 
@@ -191,35 +192,62 @@ class FlushData extends React.Component {
 }
 
 
+class ChangeLocationName extends React.Component {
+
+  handleSubmit = (event) => {
+    var newLocationName = event.target["new"].value;
+    var oldLocationName = event.target["current"].value;
+    axios.patch('/changeLocationName', {
+      newLocationName:newLocationName,
+      oldLocationName:oldLocationName
+    }).then(function(res) {
+      if(res.data === "valid") {
+        alert("Change Successfully");
+      } else {
+        alert("Fail to Change");
+      }
+    });
+  };
+  
+  render() {
+    return (
+        <div className='LocationName'>
+          <form onSubmit={this.handleSubmit}>
+            <h2> Change Location Name </h2>
+  
+            <div className="form-group">
+                <label>Current Location Name:</label>
+                <input id="current" type="text" className="form-control" placeholder="Enter old location" />
+            </div>
+
+            <div className="form-group">
+                <label>New Location Name:</label>
+                <input id="new" type="text" className="form-control" placeholder="Enter new location" />
+            </div>
+  
+            <button type="submit" className="btn btn-primary">Submit</button>
+          </form>
+        </div>
+    );
+  }
+}
 
 class Admin extends React.Component{
-  constructor(props) {
-    super(props);
-    this.state = {
-      login: true,
-      user:""
-    };
-  }
   
 
-  handleLogout = (event) => {
-    console.log("logout");
-    this.setState({
-      login: false,
-      user:""
-    });
-  }
 
 render(){
     return (
       <div className='Admin-interface'>
         <div className="header">
+        <Link to="/">
           <button className="logout-button btn btn-primary" onClick={this.props.logout}>Logout</button>
-        }
+          </Link>
           <span className="userName">Welcome, Admin</span>
         </div>
         <div className="CRUDLocation">
           <FlushData/>
+          <ChangeLocationName/>
 
         </div>
         <div className="CRUDUser">
