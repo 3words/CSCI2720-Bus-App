@@ -87,7 +87,7 @@ var StopSchema = mongoose.Schema({
   }
 });
 
-StopSchema.index({loc: 1, route: 1}, {unique: true});
+StopSchema.index({loc: 1, route: 1, dir:1}, {unique: true});
 
 var CommentSchema = mongoose.Schema({
   stop: {
@@ -129,7 +129,7 @@ app.post('/flushData', function(req, res) {
   var routeURL = [];
   var routestopURL = [];
   //Hard code route number if fixed
-  var routeNo = [967, 969, 97, 48, 314, 19, 20, 182, 171, 260];
+  var routeNo = [967];/* 969, 97, 48, 314, 19, 20, 182, 171, 260];*/
   routeNo.forEach(function(value){
     routeURL.push("https://rt.data.gov.hk/v1/transport/citybus-nwfb/route/CTB/"+value);
     routestopURL.push("https://rt.data.gov.hk/v1/transport/citybus-nwfb/route-stop/CTB/"+value+"/inbound");
@@ -160,7 +160,7 @@ app.post('/flushData', function(req, res) {
       });
     });
 
-  //update Stop database (In Progress)
+  //update Stop database
   routestopURL.forEach(function(value){
     https.get(value, res => {
       res.setEncoding("utf8");
@@ -173,30 +173,21 @@ app.post('/flushData', function(req, res) {
           try{
             var data = body.data;
             //loop through all data
-            data.forEach(function(obj) {
-              var existLocation;
-              var existRoute;
-              Location.findOne({locationID: obj.stop}), (err,result)=>{
-                if (err)
-                  console.log(err);
-                else
-                  existLocation = result;
-              };
-              if(existLocation = null){
-                const newLocation = new Location ({locationID: obj.stop});
-                existLocation = newLocation;
-                newLocation.save(function(err) {
-                if (err)
-                  console.log(err);
-              })
-              };
-              Route.findOne({route: obj.route}), (err,result)=>{
-                if (err)
-                  console.log(err);
-                else
-                  existRoute = result;
-              };
-              const newStop = new Stop ({
+            data.forEach(async function(obj) {
+              console.log(obj.stop);
+              var existLocation = await Location.findOne({locationID: obj.stop});
+              console.log(existLocation);
+              if (existLocation == null){
+                console.log("DB update");
+                const newLocation = new Location({locationID: obj.stop});
+                const e = await newLocation.save()(function(err) {
+                  if (err)
+                    console.log(err);
+                });
+              }
+
+              /*
+              var newStop = new Stop ({
                 loc: existLocation._id,
                 route: existRoute._id,
                 dir: obj.dir,
@@ -205,7 +196,7 @@ app.post('/flushData', function(req, res) {
               newStop.save(function(err) {
                 if (err)
                   console.log(err);
-              })
+              })*/
             });
           } catch (err){
             console.log(err);
