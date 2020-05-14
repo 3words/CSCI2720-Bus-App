@@ -282,7 +282,7 @@ app.post('/flushData', async function(req, res) {
       };
 
   flushData();
-  res.send("Data flush successful");
+  res.send("Data flush successful!");
 });
 
 app.post('/login', function(req, res) {
@@ -291,7 +291,7 @@ app.post('/login', function(req, res) {
   //check username and password length
   if(inputUserName.length >20 || inputUserName.length <4 || inputPassword.legnth > 20 || inputPassword.length < 4)
   {
-    res.send('not valid');
+    res.send('Invalid input!');
   } else {
     //hashed password
     var hashPW = sha256(req.body['password']);
@@ -304,9 +304,9 @@ app.post('/login', function(req, res) {
           res.send(err);
         }
         if(result != null) {
-          res.send('valid');
+          res.send('Successful Login!');
         } else {
-          res.send('not valid');
+          res.send('Invalid input!');
         }
       });
   }
@@ -317,7 +317,7 @@ app.post('/register', function(req, res) {
   var inputPassword = req.body['password'];
   if(inputUserName.length >20 || inputUserName.length <4 || inputPassword.legnth > 20 || inputPassword.length < 4)
   {
-    res.send('not valid');
+    res.send('Invalid input!');
   } else {
       var hashPW = sha256(req.body['password']);
       var e = new User({
@@ -358,7 +358,7 @@ app.patch('/changeUserName', getUserByUsername, async(req, res) => {
       res.status(400).json({ message: err.message });
     }
   }else{
-    res.send("Please enter new username");
+    res.send("Please enter new username!");
   }
 });
 
@@ -374,7 +374,7 @@ app.patch('/changePassword', getUserByUsername, async(req, res) => {
         res.status(400).json({ message: err.message });
       }
   }else {
-      res.send("New password not valid");
+      res.send("New password not valid!");
   }
 });
 
@@ -393,7 +393,7 @@ async function getUserByUsername(req, res, next) {
   try {
     user = await User.findOne({ userName: inputUserName });
     if (user == null) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: 'User not found!' });
     }
   } catch (err) {
     return res.status(500).json({ message: err.message });
@@ -402,6 +402,33 @@ async function getUserByUsername(req, res, next) {
   res.user = user;
   next();
 }
+
+app.patch('/changeLocationName', async(req, res) => {
+  if (req.body['newLocationName'] != null && req.body['oldLocationName'] != null) {
+    var newLocationName = req.body['newLocationName'];
+    var oldLocationName = req.body['oldLocationName'];
+    var location;
+    try{
+      location = await Location.findOne({name: oldLocationName });
+      if (location != null){
+        try{
+          location.name = newLocationName;
+          const updatedLocationName = await location.save();
+          res.send("Location name updated to "+location.name+".<br>\n");
+        }catch (err){
+          res.send(err);
+        }
+      }
+      else {
+        res.send("Location not found!");
+      }
+    }catch (err) {
+      res.status(400).json({message: err.message });
+    }
+  }else{
+    res.status(400).send("Please fill in all fields!");
+  }
+});
 
 app.get('/allStop', function(req, res) {
   Stop.find()
