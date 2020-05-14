@@ -209,22 +209,17 @@ class User extends React.Component {
     })
   }
 
-  handleOnClickTableRow = (event,i) => {
-    console.log(this.state.allInfomation[i]);
-    axios.get('/relatedStop')
-    .then(function(res){
-       var relate = JSON.parse(JSON.stringify(res.data))
-       this.setState({
-        singleLocation:!this.state.singleLocation,
-        detailsInfo:relate
-      })
-
+  handleOnClickTableRow = async (event,i) => {
+    var res = await axios.post('/relatedStop', {
+      locationID: this.state.allInfomation[i].locationID
     })
-
-
-
+    var relate = JSON.parse(JSON.stringify(res.data));
+    this.setState({
+      singleLocation:!this.state.singleLocation,
+      detailsInfo:relate,
+      showList:false
+    })
   }
-
 
   handleListLocations = async (tableOnclick) => {
     // alert(allRoutes.length)
