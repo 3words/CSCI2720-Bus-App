@@ -1,5 +1,6 @@
 import React from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 class NonUser extends React.Component {
 
@@ -37,6 +38,8 @@ handleSubmit = (event) => {
 
           <button type="submit" className="btn btn-primary btn-block">Submit</button>
         </form>
+        <br/>
+        <Link to='/appadmin'>Login as admin</Link>
       </div>
     );
   }
