@@ -173,8 +173,41 @@ app.post('/flushData', function(req, res) {
           try{
             var data = body.data;
             //loop through all data
-            data.forEach(function(obj) {console.log(obj.stop)});
-          }catch (err){
+            data.forEach(function(obj) {
+              var existLocation;
+              var existRoute;
+              Location.findOne({locationID: obj.stop}), (err,result)=>{
+                if (err)
+                  console.log(err);
+                else
+                  existLocation = result;
+              };
+              if(existLocation = null){
+                const newLocation = new Location ({locationID: obj.stop});
+                existLocation = newLocation;
+                newLocation.save(function(err) {
+                if (err)
+                  console.log(err);
+              })
+              };
+              Route.findOne({route: obj.route}), (err,result)=>{
+                if (err)
+                  console.log(err);
+                else
+                  existRoute = result;
+              };
+              const newStop = new Stop ({
+                loc: existLocation._id,
+                route: existRoute._id,
+                dir: obj.dir,
+                seq: obj.seq
+              });
+              newStop.save(function(err) {
+                if (err)
+                  console.log(err);
+              })
+            });
+          } catch (err){
             console.log(err);
           }
         });
