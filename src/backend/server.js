@@ -445,20 +445,25 @@ app.get('/allLocation', function(req, res) {
 });
 
 app.get('/relatedStop', async function(req, res) {
-  var locationID = req.body['locationID'];
-  var foundlocation = await Location.findOne({locationID: locationID});
-  var location_Id = foundlocation._id;
-  Stop.find({loc: location_Id})
-  .populate('loc')
-  .populate('route')
-  .exec(function(err, result) {
-    if(err) {
-      res.send(err);
-    } else {
-      res.send(result);
-    }
-  });
+  try {
+    var locationID = req.body['locationID'];
+    var foundlocation = await Location.findOne({locationID: locationID});
+    var location_Id = foundlocation._id;
+    Stop.find({loc: location_Id})
+    .populate('loc')
+    .populate('route')
+    .exec(function(err, result) {
+      if(err) {
+        res.send(err);
+      } else {
+        res.send(result);
+      }
+    });
+  }catch (err){
+  res.send(err);
+  } 
 });
+
 
 app.get('/allStop', function(req, res) {
   Stop.find()
