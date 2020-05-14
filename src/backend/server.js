@@ -389,10 +389,10 @@ app.post('/addComment', function(req, res) {
                             'comment': inputComment,
                             'timeStamp': new Date()
                           });
-                          newComment.save(function(err) {
-                            if(err)
-                              res.send(err);
-                            res.send("Success");
+                          newComment.save(function(err4) {
+                            if(err4)
+                              res.send(err4);
+                            res.send("Success！");
                           });
                         } else {
                           res.send("User does not exists!");
@@ -411,5 +411,170 @@ app.post('/addComment', function(req, res) {
       }
     });
 });
+
+app.get('/getComment', function(req,res) {
+  var inputLocationId = req.body['locationId'];
+  var inputRoute = req.body['route'];
+  var inputDir = req.body['dir'];
+
+    Location.findOne(
+    {'locationID': inputLocationId},
+    function(err, result) {
+      if(err) {
+        res.send(err);
+      }
+      if(result != null) {
+        Route.findOne(
+          {'route': inputRoute},
+          function(err1, result1) {
+            if(err1) {
+              res.send(err1);
+            }
+            if(result1 != null) {
+              Stop.findOne(
+                {
+                  'loc': result._id,
+                  'route': result1._id
+                },
+                function(err2, result2) {
+                  if(err2) {
+                    res.send(err2);
+                  }
+                  if(result2 != null) {
+                    Comment.find({'stop': result2._id})
+                      .populate('stop')
+                      .populate('user', 'UserName')
+                      .sort('-timeStamp')
+                      .exec(function(err3, results3) {
+                        if(err3) {
+                          res.send(err3);
+                        }
+                        res.send(results3);
+                      });
+                  } else {
+                    res.send("Stop does not exists!");
+                  }
+                });
+            } else {
+              res.send("Route does not exists!");
+            }
+          });
+      } else {
+        res.send("Location does not exists!");
+      }
+    });
+
+})
+
+app.post('/addFavourite', function(req,res) {
+  var inputUserName = req.body['userName'];
+  var inputLocationId = req.body['locationId'];
+
+  //find user
+  User.findOne(
+    {'userName': inputUserName},
+    function(err, result) {
+      if(err) {
+        res.send(err);
+      }
+      if(result != null) {
+        //find location
+        Location.findOne(
+          {'locationID': inputLocationId},
+          function(err1, result1) {
+            if(err1) {
+              res.send(err1);
+            }
+            if(result1 != null) {
+              var newFarvourite = new Favourite({
+                'user': result._id,
+                'loc': result1._id
+              });
+              newFarvourite.save(function(err2) {
+                if(err2)
+                  res.send(err2);
+                res.send("Success!");
+              });
+            } else {
+              res.send("Location does not exists!");
+            }
+          });
+      } else {
+        res.send("User does not exists!");
+      }
+    }
+  );
+});
+
+app.delete('/deleteFavourite', function(req,res) {
+  var inputUserName = req.body['userName'];
+  var inputLocationId = req.body['locationId'];
+
+  User.findOne(
+    {'userName': inputUserName},
+    function(err, result) {
+      if(err) {
+        res.send(err);
+      }
+      if(result != null) {
+        //find location
+        Location.findOne(
+          {'locationID': inputLocationId},
+          function(err1, result1) {
+            if(err1) {
+              res.send(err1);
+            }
+            if(result1 != null) {
+              //find favourite
+              Favourite.findOne(
+                {
+                  "user": result._id,
+                  "loc": result1._id
+                },
+                function(err2,result2) {
+                  if(err2) {
+                    res.send(err2);
+                  }
+                  if(result2 != null) {
+                    result2.remove().exec();
+                    res.send("Success!");
+                  } else {
+                    res.send("Favourite location does not exists!");
+                  }
+                });
+            } else {
+              res.send("Location does not exists!");
+            }
+          });
+      } else {
+        res.send("User does not exists!");
+      }
+    }
+  );
+})
+
+app.get('/getFavourite', function(req,res) {
+  var inputUserName = req.body['userName'];
+
+  User.findOne(
+    {'userName': inputUserName},
+    function(err, result) {
+      if(err) {
+        res.send(err);
+      }
+      if(result != null) {
+        Favourite.find(
+          {'user': result._id},
+          function(err2, results2) {
+            if(err2) {
+              res.send(err2);
+            }
+            res.send(results2);
+          });
+      } else {
+        res.send("User does not exists!");
+      }
+    });
+})
 
 app.listen(process.env.PORT || 8080);

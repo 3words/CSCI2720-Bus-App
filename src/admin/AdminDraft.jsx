@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-//import './Admin.css';
+import './Admin.css';
 import axios from 'axios';
 import { render } from 'react-dom';
 
@@ -186,6 +186,58 @@ class FlushData extends React.Component {
     }
 }
 
+const Bar = ({percent}) => {
+  return (
+    <div className= "bar" style = {{width: `${percent}%`}}
+    />
+  )
+}
+
+const Line = ({left}) =>{
+  return (
+    <div className = 'line'
+    style = {{left: `${left}%`}}
+    />
+  )
+}
+
+class Graph extends React.Component{
+  state = {
+    
+  }
+    renderLines(){
+      return Array(10).fill(null).map((el,i)=>(
+        <Line 
+        left = {i * 10}
+        key = {i}
+        />
+      ))
+    }
+    renderBars(){
+
+    }
+
+  render(){
+
+    return(
+      <div className = "graph-wrapper">
+
+        <div className = "graph">
+          <BarTextContent/>
+          <div className= "bar-lines-container"> 
+          {this.renderLines()}
+          <Bar percent={50} />
+          <Bar percent={25} />
+          <Bar percent={25} />
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+
+
 
 class Admin extends React.Component{
   constructor(props) {
@@ -220,7 +272,13 @@ render(){
           <ChangeUserPW/>
           <DeleteAccount/>
 
-        </div> 
+        </div>
+        <div className="Graph">
+          <div> Place with most comments and favorites</div>
+          <Graph/>
+
+        </div>
+
       </div>
     );
   }
