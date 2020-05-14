@@ -139,62 +139,33 @@ app.post('/flushData', async function(req, res) {
   });
 
   //update Route database
-  routeURL.forEach(function(value){
-    https.get(value, res => {
-      res.setEncoding("utf8");
-      let body = "";
-      res.on("data", data => {
-        body += data;
-      });
-      res.on("end", async() => {
-          body = JSON.parse(body);
-          try{
-            const filter = {"route": body.data.route};
-            const update = {"dest": body.data.dest_en, "orig": body.data.orig_en};
-            var route = await Route.findOneAndUpdate(filter, update, {
-            new: true,
-            upsert: true
-            });
-          }catch (err){
-            console.log(err);
-          }
+  async function createRoute(){
+    routeURL.forEach(function(value){
+      https.get(value, res => {
+        res.setEncoding("utf8");
+        let body = "";
+        res.on("data", data => {
+          body += data;
         });
-      });
-    });
-
-  //update location database with locationID for all stops
-  routestopURL.forEach(function(value){
-    https.get(value, res => {
-      res.setEncoding("utf8");
-      let body = "";
-      res.on("data", data => {
-        body += data;
-      });
-      res.on("end", async() => {
-          body = JSON.parse(body);
-            var data = body.data;
-            data.forEach(async function(obj) {
-              /*var existLocation = await Location.findOne({locationID: obj.stop});
-              if (existLocation == null){
-                const newLocation = new Location({locationID: obj.stop});
-                const e = await newLocation.save();
-              }*/
-              try{
-              const filter = {"locationID": obj.stop};
-              const update = {"locationID": obj.stop};
-              var route = await Location.findOneAndUpdate(filter, update, {
+        res.on("end", async() => {
+            body = JSON.parse(body);
+            try{
+              const filter = {"route": body.data.route};
+              const update = {"dest": body.data.dest_en, "orig": body.data.orig_en};
+              var route = await Route.findOneAndUpdate(filter, update, {
               new: true,
               upsert: true
               });
-              } catch (err){
-                console.log(err);
-              }
-            });
+            }catch (err){
+              console.log(err);
+            }
+          });
         });
       });
-    });
+  }
 
-    //update stop database
+  //update location database with locationID for all stops
+  async function createLocation(){
     routestopURL.forEach(function(value){
       https.get(value, res => {
         res.setEncoding("utf8");
@@ -206,45 +177,29 @@ app.post('/flushData', async function(req, res) {
             body = JSON.parse(body);
               var data = body.data;
               data.forEach(async function(obj) {
-                  var location = await Location.findOne({locationID: obj.stop});
-                  var route = await Route.findOne({route: obj.route});
-                  /*
-                  var newStop = new Stop ({
-                    loc: location._id,
-                    route: route._id,
-                    dir: obj.dir,
-                    seq: obj.seq
-                  });
-                  const e = await newStop.save(function(err) {
-                    if (err)
-                      console.log(err);           
-                  });*/
-                  try{
-                  const filter = {"loc": location._id, "route": route._id, "dir": obj.dir};
-                  const update = {"seq": obj.seq};
-                  var route = await Stop.findOneAndUpdate(filter, update, {
+                /*var existLocation = await Location.findOne({locationID: obj.stop});
+                  if (existLocation == null){
+                  const newLocation = new Location({locationID: obj.stop});
+                  const e = await newLocation.save();
+                */
+                try{
+                  const filter = {"locationID": obj.stop};
+                  const update = {};
+                  var e = await Location.findOneAndUpdate(filter, update, {
                   new: true,
                   upsert: true
                   });
-                  }catch (err){
-                    console.log(err);
-                  }
-              })
+                } catch (err){
+                  console.log(err);
+                }
+              });
           });
         });
       });
-
-      //get all location ID and generate URL for API
-      var allLocationID = await Location.find({},'locationID');
-      allLocationID.forEach(function(obj){
-        locationList.push(obj.locationID);
-      })
-      locationList.forEach(function(value){
-        stopURL.push("https://rt.data.gov.hk/v1/transport/citybus-nwfb/stop/00"+value);
-      })
-
-      //update location database with details
-      stopURL.forEach(function(value){
+  }
+    //update stop database
+    async function createStop(){
+      routestopURL.forEach(function(value){
         https.get(value, res => {
           res.setEncoding("utf8");
           let body = "";
@@ -253,17 +208,80 @@ app.post('/flushData', async function(req, res) {
           });
           res.on("end", async() => {
               body = JSON.parse(body);
-              try{
-                const filter = {"locationID": body.data.stop};
-                const update = {"name": body.data.name_en, "longitude": body.data.long, "latitude": body.data.lat};
-                var route = await Location.findOneAndUpdate(filter, update);
-              }catch (err){
-                console.log(err);
-              }
+                var data = body.data;
+                data.forEach(async function(obj) {
+                    var findLocation = await Location.findOne({locationID: obj.stop});
+                    var findRoute = await Route.findOne({route: obj.route});
+                    /*
+                    var newStop = new Stop ({
+                      loc: location._id,
+                      route: route._id,
+                      dir: obj.dir,
+                      seq: obj.seq
+                    });
+                    const e = await newStop.save(function(err) {
+                      if (err)
+                        console.log(err);           
+                    });*/
+                    try{
+                    const filter = {"loc": findLocation._id, "route": findRoute._id, "dir": obj.dir};
+                    const update = {"seq": obj.seq};
+                    var stop = await Stop.findOneAndUpdate(filter, update, {
+                    new: true,
+                    upsert: true
+                    });
+                    }catch (err){
+                      console.log(err);
+                    }
+                })
             });
           });
         });
+    }
 
+      //get all location ID and generate URL for API
+      async function updateLocation(){
+        var allLocationID = await Location.find({},'locationID');
+        allLocationID.forEach(function(obj){
+          locationList.push(obj.locationID);
+        })
+        locationList.forEach(function(value){
+          stopURL.push("https://rt.data.gov.hk/v1/transport/citybus-nwfb/stop/00"+value);
+        })
+
+        //update location database with details
+        stopURL.forEach(function(value){
+          https.get(value, res => {
+            res.setEncoding("utf8");
+            let body = "";
+            res.on("data", data => {
+              body += data;
+            });
+            res.on("end", async() => {
+                body = JSON.parse(body);
+                try{
+                  const filter = {"locationID": body.data.stop};
+                  const update = {"name": body.data.name_en, "longitude": body.data.long, "latitude": body.data.lat};
+                  var updateLocation = await Location.findOneAndUpdate(filter, update, {
+                  new: true,
+                  upsert: true
+                  });
+                }catch (err){
+                  console.log(err);
+                }
+              });
+            });
+          });
+      }
+
+      async function flushData(){
+        const FirstStep = await createRoute();
+        const SecondStep = await createLocation();
+        const ThirdStep = await createStop();
+        const LastStep = await updateLocation();
+      };
+
+  flushData();
   res.send("Data flush successful");
 });
 
