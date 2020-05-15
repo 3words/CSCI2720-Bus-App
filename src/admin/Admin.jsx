@@ -36,6 +36,16 @@ class FileReader extends React.Component {
       complete: this.updateData,
       header: true
     });
+    axios.post('/uploadFile', {
+      data: this.updateData
+    }).then(function(res) {
+      console.log("nice")
+      if(res.data === "valid") {
+        alert("Create Successfully");
+      } else {
+        alert("Fail to Create");
+      }
+    })
   };
 
   updateData(result) {
