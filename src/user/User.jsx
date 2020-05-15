@@ -2,7 +2,7 @@ import React from 'react';
 import axios from 'axios';
 import './User.css';
 import SingleLocation from './SingleLocation';
-
+import MapView from './MapView';
 let allRoutes =[967, 969, 97, 48, 314, 19, 20, 182, 171, 260]
 
 
@@ -72,7 +72,6 @@ class ListLocation extends React.Component {
         shouldSwitch = false;
         x = rows[i].getElementsByTagName("TD")[n];
         y = rows[i + 1].getElementsByTagName("TD")[n];
-        console.log(x.innerHTML)
         if (dir == "asc") {
           if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
             shouldSwitch= true;
@@ -224,7 +223,21 @@ class User extends React.Component {
       singleLocation:!this.state.singleLocation,
       detailsInfo:relate,
       showList:false,
-      MapView:false
+      showMap:false
+    })
+  }
+
+  handleMarkerOnclick = async (locationID) => {
+   
+    var res = await axios.post('/relatedStop', {
+      locationID: locationID
+    })
+    var relate = JSON.parse(JSON.stringify(res.data));
+    this.setState({
+      singleLocation:!this.state.singleLocation,
+      detailsInfo:relate,
+      showList:false,
+      showMap:false
     })
   }
 
@@ -237,7 +250,6 @@ class User extends React.Component {
          var obj = JSON.parse(JSON.stringify(res.data))
 
          fullInfo = obj;
-         //console.log(obj);
          for (var i in obj){
            const rowidx = i;
            const row = (
@@ -304,7 +316,9 @@ class User extends React.Component {
         {this.state.showList &&
           <ListLocation locationList={this.state.locationList}></ListLocation>
         }
-
+        {this.state.showMap &&
+          <MapView markerOnclick = {this.handleMarkerOnclick} allInfomation={this.state.allInfomation}></MapView>
+        }
         {this.state.singleLocation &&
           <SingleLocation  back={this.handledetailsInfoBack} relatedStop={this.state.detailsInfo}></SingleLocation>
         }

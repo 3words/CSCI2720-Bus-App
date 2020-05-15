@@ -11,13 +11,13 @@ class MapView extends React.Component {
     super(props);
   }
 
-  displayMarkers = (allInfomation) => {
+  displayMarkers = (markerOnclick,allInfomation) => {
     return allInfomation.map((singleLocation, index) => {
       return <Marker key={index} id={index} position={{
        lat: singleLocation.latitude,
        lng: singleLocation.longitude
      }}
-     onClick={() => console.log(singleLocation.locationID)} />
+     onClick={() => markerOnclick(singleLocation.locationID)} />
     })
   }
 
@@ -29,7 +29,7 @@ class MapView extends React.Component {
           style={mapStyles}
           initialCenter={{ lat: 22.399290, lng: 114.169060}}
         >
-        {this.displayMarkers(this.props.allInfomation)}
+        {this.displayMarkers(this.props.markerOnclick,this.props.allInfomation)}
         </Map>
     );
   }
