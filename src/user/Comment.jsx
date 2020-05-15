@@ -6,10 +6,10 @@ class Comment extends React.Component {
         super(props);
         this.state = {
           showComment: false,
-        
+          allComment: ""
         };
       }
-    
+
       handleShowCommentOnclick = () => {
           this.setState({
               showComment: !this.state.showComment
@@ -51,43 +51,33 @@ class Comment extends React.Component {
       }
 */
       showAllComments = async (singleLocation) => {
-            //return (<div>this is comment!</div>)
-            
-            var res = await axios.post('/getComment', {
-                locationId:singleLocation[0].locationID
-            })
-            
-            
-            var single = JSON.parse(JSON.stringify(res.data));
-            console.log(single)
-            if(res.data===[]) return (<p>"Comment not found!"</p>)
-           
+        //return (<div>this is comment!</div>)
+        var res = await axios.post('/getComment', {
+            locationId:singleLocation[0].locationID
+        })
 
-
-            
-            return single.map((com,index) =>{
-                return (<div>{com.user.userName}
-                        
-                    </div>
-                )
-            }) 
-            
-            
-
+        var single = JSON.parse(JSON.stringify(res.data));
+        if(res.data===[]) return (<p>"Comment not found!"</p>)
+        this.setState({
+          allComment: single,
+          showComment: !this.state.showComment
+        });
       }
 
     render() {
         return (
             <div className='comment-frame'>
-                <button className="btn btn-primary" onClick={()=>{this.handleShowCommentOnclick()}}>Show Comments</button>
+                <button className="btn btn-primary" onClick={()=>{this.showAllComments(this.props.singleLocation)}}>Show Comments</button>
                 <button className="btn btn-primary" onClick={()=>{this.handleAddCommentOnclick(this.props.user,this.props.singleLocation)}}>Add Comment</button>
                 <div id='comments'>
-                    {this.state.showComment && this.showAllComments(this.props.singleLocation)}
+                    {this.state.showComment && this.state.allComment.map((com,index) =>
+                      <div>{com.user.userName}</div>
+                    )}
                 </div>
             </div>
         );
     }
-        
+
 }
 
 
