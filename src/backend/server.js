@@ -640,7 +640,7 @@ app.delete('/deleteFavourite', function(req,res) {
 })
 
 app.get('/getFavourite', function(req,res) {
-  var inputUserName = req.body['userName'];
+  var inputUserName = req.query['userName'];
 
   User.findOne(
     {'userName': inputUserName},
@@ -649,14 +649,15 @@ app.get('/getFavourite', function(req,res) {
         res.send(err);
       }
       if(result != null) {
-        Favourite.find(
-          {'user': result._id},
-          function(err2, results2) {
-            if(err2) {
-              res.send(err2);
-            }
-            res.send(results2);
-          });
+        Favourite.find({'user': result._id})
+        .populate('loc')
+        .populate('user')
+        .exec(function(err2, results2) {
+          if(err2) {
+            res.send(err2);
+          }
+          res.send(results2);
+        })
       } else {
         res.send("User does not exists!");
       }

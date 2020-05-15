@@ -1,10 +1,25 @@
 import React from 'react';
 import MapView from './MapView';
 import Comment from './Comment';
+import AddFavour from './AddFavour'
 class SingleLocation extends React.Component {
 
+  
+  constructor(props) {
+    super(props);
+    this.state = {
+      addFavour:false
+    };
+  }
+
+  handleAddFavouriteLocation = ()=>{
+    this.setState({
+      addFavour:!this.state.addFavour
+    })
+ }
 
 
+ 
   render() {
     return (
       <div className="single-location">
@@ -25,7 +40,12 @@ class SingleLocation extends React.Component {
             </tr>
         </table>
         <Comment user={this.props.user} singleLocation={[this.props.relatedStop[0].loc]} ></Comment>
-        <MapView markerOnclick = {null} allInfomation={[this.props.relatedStop[0].loc]}></MapView>
+
+        <button className="btn btn-primary btn-block" onClick={this.handleAddFavouriteLocation}>Add favourite Location</button>
+        {this.state.addFavour &&
+            <AddFavour user={this.props.user} favourLocation={this.props.relatedStop[0].loc} ></AddFavour>
+        }
+        <MapView markerOnclick = {()=>false} allInfomation={[this.props.relatedStop[0].loc]}></MapView>
       </div>
     );
   }

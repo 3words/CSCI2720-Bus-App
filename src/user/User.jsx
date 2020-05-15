@@ -3,6 +3,7 @@ import axios from 'axios';
 import './User.css';
 import SingleLocation from './SingleLocation';
 import MapView from './MapView';
+
 let allRoutes =[967, 969, 97, 48, 314, 19, 20, 182, 171, 260]
 
 
@@ -181,7 +182,8 @@ class User extends React.Component {
       locationList:"",
       allInfomation:"",
       detailsInfo: "",
-      singleLocation: false
+      singleLocation: false,
+      addFavour: false,
     };
   }
 
@@ -270,39 +272,27 @@ class User extends React.Component {
      this.changeallInfomation(fullInfo);
      this.changeListLocation(eachRoute);
    };
-  /*
-  handleListLocations = async (tableOnclick) => {
-   // alert(allRoutes.length)
-   var eachRoute=[];
-   var fullInfo =[];
-    for (var i =0;i<1;i++){
-      await axios.get('/allStop',{
-        params:{
-          route : allRoutes[i]
-        }
-      })
-      .then(function(res) {
-        var obj = JSON.parse(JSON.stringify(res.data))
-        //alert(obj.data[0]);
-        fullInfo.push(obj);
+ 
+   handleFavouriteOnclick = async(user)=>{
+     
+     this.setState({
+       showList: !this.state.showList
+     })
 
-        for (var i in obj.data){
-          const rowidx = i;
-          const row = (
-              <tr onClick={(event) => tableOnclick(event,rowidx)}>
-              <td>{obj.data[i].locID}</td>
-              <td>{obj.data[i].name}</td>
-              </tr>
-          );
-          eachRoute.push(row)
-        }
 
-      });
-    }
-    this.changeallInfomation(fullInfo);
-    this.changeListLocation(eachRoute);
-  };
-*/
+     await axios.get('/getFavourite',{
+       params:{
+        userName:user
+      }
+    })
+     .then(function(res) {
+       var obj = JSON.parse(JSON.stringify(res.data))
+       console.log(obj[1].user.userName)
+       console.log(obj[1].loc.locationID)
+
+     });
+
+   }
 
 
   render() {
@@ -312,15 +302,18 @@ class User extends React.Component {
           <button className="logout-button btn btn-primary" onClick={this.props.logout}>Logout</button>
           <span className="userName">Hello, {this.props.user}</span>
         </div>
-        {!this.state.singleLocation &&
+
+        { !this.state.singleLocation  &&
           <div>
             <button className="btn btn-primary" onClick={()=>{this.toggleShowList()}}>Switch View (List/Map)</button>
             <button className="btn btn-primary" onClick={()=>{this.handleListLocations(this.handleOnClickTableRow)}}>Load List</button>
+            <button className="btn btn-primary" onClick={()=>{this.handleFavouriteOnclick(this.props.user)}}>Get Favourite Locations</button>
           </div>
         }
         {this.state.showList &&
           <ListLocation locationList={this.state.locationList}></ListLocation>
         }
+         
         {this.state.showMap &&
           <MapView markerOnclick = {this.handleMarkerOnclick} allInfomation={this.state.allInfomation}></MapView>
         }
