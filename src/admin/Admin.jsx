@@ -3,6 +3,26 @@ import './Admin.css';
 import axios from 'axios';
 import { render } from 'react-dom';
 import { Link } from 'react-router-dom';
+import 'react-dropzone-uploader/dist/styles.css'
+import Dropzone from 'react-dropzone-uploader'
+
+const MyUploader = () => {
+  const getUploadParams = ({ meta }) => { return { url: 'https://httpbin.org/post' } }
+  const handleChangeStatus = ({ meta, file }, status) => { console.log(status, meta, file) }
+  const handleSubmit = (files, allFiles) => {
+    console.log(files.map(f => f.meta))
+    allFiles.forEach(f => f.remove())
+  }
+
+  return (
+    <Dropzone
+      getUploadParams={getUploadParams}
+      onChangeStatus={handleChangeStatus}
+      onSubmit={handleSubmit}
+      accept="image/*,audio/*,video/*"
+    />
+  )
+}
 
 class CreateAccount extends React.Component {
 
@@ -230,6 +250,7 @@ class ChangeLocationName extends React.Component {
   }
 }
 
+
 class Admin extends React.Component{
   
 
@@ -246,7 +267,7 @@ render(){
         <div className="CRUDLocation">
           <FlushData/>
           <ChangeLocationName/>
-
+          <MyUploader/>
         </div>
         <div className="CRUDUser">
           <CreateAccount/>
