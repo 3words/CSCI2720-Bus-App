@@ -182,12 +182,9 @@ class User extends React.Component {
       locationList:"",
       allInfomation:"",
       detailsInfo: "",
-<<<<<<< HEAD
       singleLocation: false,
       addFavour: false,
-=======
       eta:""
->>>>>>> 7d97e64c4b488eef274220c19f65930ae37a1bf4
     };
   }
 
@@ -314,9 +311,9 @@ class User extends React.Component {
      this.changeallInfomation(fullInfo);
      this.changeListLocation(eachRoute);
    };
- 
+
    handleFavouriteOnclick = async(user)=>{
-     
+
      this.setState({
        showList: !this.state.showList
      })
@@ -355,7 +352,7 @@ class User extends React.Component {
         {this.state.showList &&
           <ListLocation locationList={this.state.locationList}></ListLocation>
         }
-         
+
         {this.state.showMap &&
           <MapView markerOnclick = {this.handleMarkerOnclick} allInfomation={this.state.allInfomation}></MapView>
         }
