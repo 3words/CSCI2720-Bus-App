@@ -36,7 +36,16 @@ class Comment extends React.Component {
           })
 
         if(res.data==="User does not exists!" || res.data==="Location does not exists!" )  alert("Failed adding comment!")
-        else alert("Add Successfully!")
+        else{
+            alert("Add Successfully!")
+            var res = await axios.post('/getComment', {
+                locationId:singleLocation[0].locationID
+            })
+            var single = JSON.parse(JSON.stringify(res.data));
+            this.setState({
+            allComment: single,
+            });
+        } 
       }
 
       /*
@@ -71,7 +80,20 @@ class Comment extends React.Component {
                 <button className="btn btn-primary" onClick={()=>{this.handleAddCommentOnclick(this.props.user,this.props.singleLocation)}}>Add Comment</button>
                 <div id='comments'>
                     {this.state.showComment && this.state.allComment.map((com,index) =>
-                      <div>{com.user.userName}</div>
+                    
+                    <table style={{width:700 }}>
+                    <tr>
+                        <th>User</th>
+                        <th>Comment</th>
+                        <th>Time Stamp</th>
+                    </tr>
+                    <tr>
+                        <td>{com.user.userName}</td>
+                        <td>{com.comment}</td>
+                        <td>{com.timeStamp}</td>
+                    </tr>
+                    </table>
+
                     )}
                 </div>
             </div>
