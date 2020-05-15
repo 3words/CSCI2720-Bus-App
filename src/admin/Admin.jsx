@@ -36,7 +36,7 @@ class CreateAccount extends React.Component {
       if(res.data === "User successfully registered.") {
         alert("Registered Successfully");
       } else {
-        alert("Failed to register");
+        alert("Fail to Register");
       }
     });
   };
@@ -75,10 +75,13 @@ class ChangeName extends React.Component {
       }).then(function(res) {
         console.log(res.data);
         if(res.data === "valid") {
-          alert("Changed Successfully");
-        } else {
-          alert("Input invalid") 
-        };
+          alert("Change Successfully");
+        } else if(res.data === "Please enter new username") {
+          alert("Please fill in the fields") 
+        }
+          else {
+            alert("Input invalid")
+          };
         }
       );
     };
@@ -117,9 +120,9 @@ class ChangeUserPW extends React.Component {
         }).then(function(res) {
           console.log(res.data)
           if(res.data === "valid") {
-            alert("Changed Successfully");
+            alert("Change Successfully");
           } else {
-            alert("Input Invalid");
+            alert("Fail to Change");
           }
         });
       };
@@ -151,15 +154,14 @@ class ChangeUserPW extends React.Component {
 
   handleSubmit = (event) => {
     var userName = event.target["userName"].value;
-    var deleteURL = '/deleteUser/'+userName;
-    axios.delete(deleteURL, {
+    axios.delete('/deleteUser', {
       userName: userName
     }).then(function(res) {
-      console.log(res);
+      console.log(res.data);
       if(res.data === "valid") {
-        alert("Deleted Successfully");
+        alert("Delete Successfully");
       } else{
-        alert("User not found!") 
+        alert("Fail to delete") 
       }
       }
     );
@@ -219,9 +221,9 @@ class ChangeLocationName extends React.Component {
       oldLocationName:oldLocationName
     }).then(function(res) {
       if(res.data === "valid") {
-        alert("Changed Successfully");
+        alert("Change Successfully");
       } else {
-        alert("Failed to Change");
+        alert("Fail to Change");
       }
     });
   };
@@ -286,11 +288,11 @@ class UploadCSV extends Component {
     const fontSize = 5;
     return (
       <div align="center" oncontextmenu="return false">
+        <h2 align="left">Upload or drop your CSV file here.</h2>
         <div className="dropzone">
           <Dropzone accept=".csv" onDropAccepted={this.onDrop.bind(this)}>            
           </Dropzone>
         </div>
-        <h2>Upload or drop your CSV file here.</h2>
       </div>
       
     )
@@ -337,7 +339,7 @@ render(){
         <div className="CRUDLocation">
           <FlushData/>
           <ChangeLocationName/>
-          <MyUploader/>
+
         </div>
         <div className="CRUDUser">
           <CreateAccount/>
@@ -346,7 +348,6 @@ render(){
           <DeleteAccount/>
         </div>
         <div className= "upload file">
-        <UploadCSV/>
         </div>
       </div>
     );
