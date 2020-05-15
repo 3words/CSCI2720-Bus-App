@@ -17,7 +17,7 @@ class CreateAccount extends React.Component {
       if(res.data === "User successfully registered.") {
         alert("Registered Successfully");
       } else {
-        alert("Fail to Register");
+        alert("Failed to register");
       }
     });
   };
@@ -56,13 +56,10 @@ class ChangeName extends React.Component {
       }).then(function(res) {
         console.log(res.data);
         if(res.data === "valid") {
-          alert("Change Successfully");
-        } else if(res.data === "Please enter new username") {
-          alert("Please fill in the fields") 
-        }
-          else {
-            alert("Input invalid")
-          };
+          alert("Changed Successfully");
+        } else {
+          alert("Input invalid") 
+        };
         }
       );
     };
@@ -101,9 +98,9 @@ class ChangeUserPW extends React.Component {
         }).then(function(res) {
           console.log(res.data)
           if(res.data === "valid") {
-            alert("Change Successfully");
+            alert("Changed Successfully");
           } else {
-            alert("Fail to Change");
+            alert("Input Invalid");
           }
         });
       };
@@ -135,14 +132,15 @@ class ChangeUserPW extends React.Component {
 
   handleSubmit = (event) => {
     var userName = event.target["userName"].value;
-    axios.delete('/deleteUser', {
+    var deleteURL = '/deleteUser/'+userName;
+    axios.delete(deleteURL, {
       userName: userName
     }).then(function(res) {
-      console.log(res.data);
+      console.log(res);
       if(res.data === "valid") {
-        alert("Delete Successfully");
+        alert("Deleted Successfully");
       } else{
-        alert("Fail to delete") 
+        alert("User not found!") 
       }
       }
     );
@@ -202,9 +200,9 @@ class ChangeLocationName extends React.Component {
       oldLocationName:oldLocationName
     }).then(function(res) {
       if(res.data === "valid") {
-        alert("Change Successfully");
+        alert("Changed Successfully");
       } else {
-        alert("Fail to Change");
+        alert("Failed to Change");
       }
     });
   };
