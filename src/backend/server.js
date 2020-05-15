@@ -90,9 +90,9 @@ var StopSchema = mongoose.Schema({
 StopSchema.index({loc: 1, route: 1, dir:1}, {unique: true});
 
 var CommentSchema = mongoose.Schema({
-  stop: {
+  loc: {
     type: Schema.Types.ObjectId,
-    ref: 'Stop'
+    ref: 'Location'
   },
   user: {
     type: Schema.Types.ObjectId,
@@ -551,10 +551,8 @@ app.post('/addComment', function(req, res) {
     });
 });
 
-app.get('/getComment', function(req,res) {
+app.post('/getComment', function(req,res) {
   var inputLocationId = req.body['locationId'];
-  var inputRoute = req.body['route'];
-  var inputDir = req.body['dir'];
 
     Location.findOne(
     {'locationID': inputLocationId},
@@ -563,39 +561,14 @@ app.get('/getComment', function(req,res) {
         res.send(err);
       }
       if(result != null) {
-        Route.findOne(
-          {'route': inputRoute},
-          function(err1, result1) {
+        Comment.find(
+          {loc: result._id})
+          .populate('loc')
+          .exec(function(err1, results1) {
             if(err1) {
               res.send(err1);
-            }
-            if(result1 != null) {
-              Stop.findOne(
-                {
-                  'loc': result._id,
-                  'route': result1._id
-                },
-                function(err2, result2) {
-                  if(err2) {
-                    res.send(err2);
-                  }
-                  if(result2 != null) {
-                    Comment.find({'stop': result2._id})
-                      .populate('stop')
-                      .populate('user', 'UserName')
-                      .sort('-timeStamp')
-                      .exec(function(err3, results3) {
-                        if(err3) {
-                          res.send(err3);
-                        }
-                        res.send(results3);
-                      });
-                  } else {
-                    res.send("Stop does not exists!");
-                  }
-                });
             } else {
-              res.send("Route does not exists!");
+              res.send(results1);
             }
           });
       } else {
