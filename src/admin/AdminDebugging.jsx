@@ -4,31 +4,13 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import 'react-dropzone-uploader/dist/styles.css'
 import Dropzone from 'react-dropzone-uploader'
-//import csv from 'csv'
-
-const MyUploader = () => {
-  const getUploadParams = ({ meta }) => { return { url: '/uploadFile' } }
-  const handleChangeStatus = ({ meta, file }, status) => { console.log(status, meta, file) }
-  const handleSubmit = (files, allFiles) => {
-    console.log(files.map(f => f.meta))
-    allFiles.forEach(f => f.remove())
-  }
-
-  return (
-    <Dropzone
-      getUploadParams={getUploadParams}
-      onChangeStatus={handleChangeStatus}
-      onSubmit={handleSubmit}
-    />
-  )
-}
+import csv from 'csv'
 
 class CreateAccount extends React.Component {
 
   handleSubmit = (event) => {
     var userName = event.target["userName"].value;
     var pw = event.target["password"].value;
-    var returnFunction = this.props.register;
     axios.post('/register', {
       userName: userName,
       password: pw
@@ -250,9 +232,10 @@ class ChangeLocationName extends React.Component {
     );
   }
 }
-/*
+
 class UploadCSV extends Component {
   onDrop(files) {
+    console.log("nice")
     this.setState({ files });
     var file = files[0];
     const reader = new FileReader();
@@ -260,18 +243,19 @@ class UploadCSV extends Component {
       csv.parse(reader.result, (err, data) => {
         var location = [];
         for (var i = 0; i < data.length; i++) {
-          const name = data[i][0];
-          const locationID = data[i][1];
-          const latitude = data[i][2];
-          const longitude = data[i][3];
+          const locationID = data[i][0];
+          const name = data[i][1];
+          const longitude = data[i][2];
+          const latitude = data[i][3];
 
-          const newLocation = { "name": name, "locationID": locationID, "latitude": latitude, "longitude": longitude};
+          const newLocation = { "locationID": locationID, "name": name, "long": longitude,"lat": latitude};
           var JSLocation = JSON.stringify(newLocation)
           location.push(JSLocation);
         };
-        axios.post('/uploadcsv', {
-          location
+        axios.post('/uploadFile', {
+          data: location
         }).then(function(res) {
+          console.log("nice")
           if(res.data === "valid") {
             alert("Create Successfully");
           } else {
@@ -284,11 +268,9 @@ class UploadCSV extends Component {
     reader.readAsBinaryString(file);
   }
   render() {
-    const wellStyles = { maxWidth: 400, margin: '0 auto 10px' };
-    const fontSize = 5;
     return (
-      <div align="center" oncontextmenu="return false">
-        <h2 align="left">Upload or drop your CSV file here.</h2>
+      <div align="center" >
+        <h2 align="left">Upload or Drop Your CSV File Here.</h2>
         <div className="dropzone">
           <Dropzone accept=".csv" onDropAccepted={this.onDrop.bind(this)}>            
           </Dropzone>
@@ -299,7 +281,7 @@ class UploadCSV extends Component {
   }
 }
 
-*/
+
 /*
 const UploadCSV = () => {
   const getUploadParams = () => {
@@ -348,6 +330,7 @@ render(){
           <DeleteAccount/>
         </div>
         <div className= "upload file">
+        <UploadCSV/>
         </div>
       </div>
     );

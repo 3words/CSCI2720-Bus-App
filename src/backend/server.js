@@ -380,9 +380,19 @@ app.patch('/changePassword', getUserByUsername, async(req, res) => {
   }
 });
 
-app.delete('/deleteUser',  async(req, res) => {
+app.delete('/deleteUser/:userName', async(req, res) => {
+  var user;
+  var inputUserName = req.params['userName'];
+  try {
+    user = await User.findOne({ userName: inputUserName });
+    if (user == null) {
+      return res.send("User not found");
+    }
+  } catch (err) {
+    return res.send("invalid");
+  }
   try{
-      await res.user.remove();
+      await user.remove();
       res.send("valid");
   }catch (err) {
       res.send("invalid");
@@ -430,6 +440,23 @@ app.patch('/changeLocationName', async(req, res) => {
   }else{
     res.status(400).send("missing fields");
   }
+});
+
+app.post('/uploadFile', async(req,res) =>{
+    try{
+      data = req.body;
+      data.forEach(async function(obj) {
+        const filter = {"locationID": obj.locationID};
+        const update = {"name": obj.name, "lat": obj.lat, "long": obj.long};
+        var e = await Location.findOneAndUpdate(filter, update, {
+        new: true,
+        upsert: true
+        });
+      });
+      res.send("valid");
+    } catch (err){
+      res.send("ïnvalid");
+    }
 });
 
 app.get('/allLocation', function(req, res) {
@@ -549,7 +576,6 @@ app.post('/getComment', function(req,res) {
         res.send("Location does not exists!");
       }
     });
-
 })
 
 app.post('/addFavourite', function(req,res) {

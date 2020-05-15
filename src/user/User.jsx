@@ -6,7 +6,6 @@ import MapView from './MapView';
 
 let allRoutes =[967, 969, 97, 48, 314, 19, 20, 182, 171, 260]
 
-
 class Content extends React.Component {
 
 
@@ -179,11 +178,16 @@ class User extends React.Component {
     this.state = {
       showList: true,
       showMap: false,
+      singleLocation: false,
       locationList:"",
       allInfomation:"",
       detailsInfo: "",
+<<<<<<< HEAD
       singleLocation: false,
       addFavour: false,
+=======
+      eta:""
+>>>>>>> 7d97e64c4b488eef274220c19f65930ae37a1bf4
     };
   }
 
@@ -213,18 +217,39 @@ class User extends React.Component {
     this.setState({
       singleLocation:!this.state.singleLocation,
       detailsInfo: "",
+      eta:"",
       showList:true,
       showMap:false
     })
   }
 
   handleOnClickTableRow = async (event,i) => {
+    var locID = this.state.allInfomation[i].locationID;
     var res = await axios.post('/relatedStop', {
-      locationID: this.state.allInfomation[i].locationID
+      locationID: locID
     })
     var relate = JSON.parse(JSON.stringify(res.data));
+    console.log(relate)
+    var tempEtaArray = [];
+    for (var i=0; i<relate.length; i++) {
+      var url='https://rt.data.gov.hk/v1/transport/citybus-nwfb/eta/CTB/00'+locID+'/'+relate[i].route.route;
+      let request = new XMLHttpRequest();
+      await request.open("GET", url,false);
+       request.onreadystatechange = await function() {
+        if(request.readyState === XMLHttpRequest.DONE && request.status === 200) {
+            var etaInfo = JSON.parse(request.responseText);
+            for(var j=0; j<etaInfo.data.length; j++) {
+              if(etaInfo.data[j].dir == relate[i].dir) {
+                tempEtaArray.push(etaInfo.data[j])
+              }
+            }
+        }
+      }
+      request.send();
+    }
     this.setState({
       singleLocation:!this.state.singleLocation,
+      eta: tempEtaArray,
       detailsInfo:relate,
       showList:false,
       showMap:false
@@ -232,13 +257,30 @@ class User extends React.Component {
   }
 
   handleMarkerOnclick = async (locationID) => {
-
     var res = await axios.post('/relatedStop', {
       locationID: locationID
     })
     var relate = JSON.parse(JSON.stringify(res.data));
+    var tempEtaArray = [];
+    for (var i=0; i<relate.length; i++) {
+      var url='https://rt.data.gov.hk/v1/transport/citybus-nwfb/eta/CTB/00'+locationID+'/'+relate[i].route.route;
+      let request = new XMLHttpRequest();
+      await request.open("GET", url,false);
+       request.onreadystatechange = await function() {
+        if(request.readyState === XMLHttpRequest.DONE && request.status === 200) {
+            var etaInfo = JSON.parse(request.responseText);
+            for(var j=0; j<etaInfo.data.length; j++) {
+              if(etaInfo.data[j].dir == relate[i].dir) {
+                tempEtaArray.push(etaInfo.data[j])
+              }
+            }
+        }
+      }
+      request.send();
+    }
     this.setState({
       singleLocation:!this.state.singleLocation,
+      eta: tempEtaArray,
       detailsInfo:relate,
       showList:false,
       showMap:false
@@ -318,7 +360,7 @@ class User extends React.Component {
           <MapView markerOnclick = {this.handleMarkerOnclick} allInfomation={this.state.allInfomation}></MapView>
         }
         {this.state.singleLocation &&
-          <SingleLocation  user={this.props.user} back={this.handledetailsInfoBack} relatedStop={this.state.detailsInfo}></SingleLocation>
+          <SingleLocation  eta={this.state.eta} user={this.props.user} back={this.handledetailsInfoBack} relatedStop={this.state.detailsInfo}></SingleLocation>
         }
       </div>
     );
