@@ -1,8 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, Component } from 'react';
 import './Admin.css';
 import axios from 'axios';
-import { render } from 'react-dom';
 import { Link } from 'react-router-dom';
+import Dropzone from 'react-dropzone';
+import csv from 'csv'
 
 class CreateAccount extends React.Component {
 
@@ -229,10 +230,82 @@ class ChangeLocationName extends React.Component {
     );
   }
 }
+/*
+class UploadCSV extends Component {
+  onDrop(files) {
+    this.setState({ files });
+    var file = files[0];
+    const reader = new FileReader();
+    reader.onload = () => {
+      csv.parse(reader.result, (err, data) => {
+        var location = [];
+        for (var i = 0; i < data.length; i++) {
+          const name = data[i][0];
+          const locationID = data[i][1];
+          const latitude = data[i][2];
+          const longitude = data[i][3];
 
+          const newLocation = { "name": name, "locationID": locationID, "latitude": latitude, "longitude": longitude};
+          var JSLocation = JSON.stringify(newLocation)
+          location.push(JSLocation);
+        };
+        axios.post('/uploadcsv', {
+          location
+        }).then(function(res) {
+          if(res.data === "valid") {
+            alert("Create Successfully");
+          } else {
+            alert("Fail to Create");
+          }
+        });
+      });
+    };
+
+    reader.readAsBinaryString(file);
+  }
+  render() {
+    const wellStyles = { maxWidth: 400, margin: '0 auto 10px' };
+    const fontSize = 5;
+    return (
+      <div align="center" oncontextmenu="return false">
+        <div className="dropzone">
+          <Dropzone accept=".csv" onDropAccepted={this.onDrop.bind(this)}>            
+          </Dropzone>
+        </div>
+        <h2>Upload or drop your CSV file here.</h2>
+      </div>
+      
+    )
+  }
+}
+
+*/
+/*
+const UploadCSV = () => {
+  const getUploadParams = () => {
+    return { url: 'https://httpbin.org/post' }
+  }
+
+  const handleChangeStatus = ({ meta }, status) => {
+    console.log(status, meta)
+  }
+
+  const handleSubmit = (files, allFiles) => {
+    console.log(files.map(f => f.meta))
+    allFiles.forEach(f => f.remove())
+  }
+
+  return (
+    <Dropzone
+      getUploadParams={getUploadParams}
+      onChangeStatus={handleChangeStatus}
+      onSubmit={handleSubmit}
+      styles={{ dropzone: { minHeight: 200, maxHeight: 250 } }}
+    />
+  )
+}
+*/
 class Admin extends React.Component{
-  
-
 
 render(){
     return (
@@ -253,10 +326,10 @@ render(){
           <ChangeName/>
           <ChangeUserPW/>
           <DeleteAccount/>
-
         </div>
-
-
+        <div className= "upload file">
+        <UploadCSV/>
+        </div>
       </div>
     );
   }
@@ -264,3 +337,84 @@ render(){
 
 export default Admin;
 
+
+/*
+function csvJSON(csv){
+
+  var lines=csv.split("\n");
+
+  var result = [];
+
+  var headers=lines[0].split(",");
+
+  for(var i=1;i<lines.length;i++){
+
+      var obj = {};
+      var currentline=lines[i].split(",");
+
+      for(var j=0;j<headers.length;j++){
+          obj[headers[j]] = currentline[j];
+      }
+
+      result.push(obj);
+
+  }
+
+  return JSON.stringify(result); //JSON
+}
+
+class UploadCSV extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      file: "",
+      filePreviewUrl: ""
+    };
+    this.pressButton = this.pressButton.bind(this);
+    this.uploadCSV = this.uploadCSV.bind(this);
+  }
+
+  pressButton(e) {
+    e.preventDefault();
+    axios.post('/uploadcsv', {
+    }).then(function(res) {
+      if(res.data === "valid") {
+        alert("Create Successfully");
+      } else {
+        alert("Fail to Create");
+      }
+    });
+  }
+
+  uploadCSV(e) {
+    e.preventDefault();
+    let reader = new FileReader();
+    let file = e.target.files[0];
+    console.log(csvJSON(file))
+
+    reader.onloadend = () => {
+      this.setState({
+        file: file,
+        filePreviewUrl: reader.result
+      });
+    };
+    reader.readAsDataURL(file);
+  }
+
+  render() {
+    let FilePreview = null;
+    return (
+      <div>
+        <h2> Upload csv file </h2>
+        <form action="." enctype="multipart/form-data">
+          <input type="file" onChange={this.uploadCSV} />
+          <div className="pt-2"></div>
+          <button onClick={this.pressButton} className="btn btn-primary"> Submit </button>
+        </form>
+        <span className="filePreview">{FilePreview}</span>
+      </div>
+    );
+  }
+}
+
+*/
