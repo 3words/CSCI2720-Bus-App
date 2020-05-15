@@ -211,18 +211,39 @@ class User extends React.Component {
     this.setState({
       singleLocation:!this.state.singleLocation,
       detailsInfo: "",
+      eta:"",
       showList:true,
       showMap:false
     })
   }
 
   handleOnClickTableRow = async (event,i) => {
+    var locID = this.state.allInfomation[i].locationID;
     var res = await axios.post('/relatedStop', {
-      locationID: this.state.allInfomation[i].locationID
+      locationID: locID
     })
     var relate = JSON.parse(JSON.stringify(res.data));
+    console.log(relate)
+    var tempEtaArray = [];
+    for (var i=0; i<relate.length; i++) {
+      var url='https://rt.data.gov.hk/v1/transport/citybus-nwfb/eta/CTB/00'+locID+'/'+relate[i].route.route;
+      let request = new XMLHttpRequest();
+      await request.open("GET", url,false);
+       request.onreadystatechange = await function() {
+        if(request.readyState === XMLHttpRequest.DONE && request.status === 200) {
+            var etaInfo = JSON.parse(request.responseText);
+            for(var j=0; j<etaInfo.data.length; j++) {
+              if(etaInfo.data[j].dir == relate[i].dir) {
+                tempEtaArray.push(etaInfo.data[j])
+              }
+            }
+        }
+      }
+      request.send();
+    }
     this.setState({
       singleLocation:!this.state.singleLocation,
+      eta: tempEtaArray,
       detailsInfo:relate,
       showList:false,
       showMap:false
@@ -230,13 +251,11 @@ class User extends React.Component {
   }
 
   handleMarkerOnclick = async (locationID) => {
-
     var res = await axios.post('/relatedStop', {
       locationID: locationID
     })
     var relate = JSON.parse(JSON.stringify(res.data));
     var tempEtaArray = [];
-    var eta;
     for (var i=0; i<relate.length; i++) {
       var url='https://rt.data.gov.hk/v1/transport/citybus-nwfb/eta/CTB/00'+locationID+'/'+relate[i].route.route;
       let request = new XMLHttpRequest();
@@ -244,7 +263,11 @@ class User extends React.Component {
        request.onreadystatechange = await function() {
         if(request.readyState === XMLHttpRequest.DONE && request.status === 200) {
             var etaInfo = JSON.parse(request.responseText);
-            tempEtaArray.push(etaInfo.data[0])
+            for(var j=0; j<etaInfo.data.length; j++) {
+              if(etaInfo.data[j].dir == relate[i].dir) {
+                tempEtaArray.push(etaInfo.data[j])
+              }
+            }
         }
       }
       request.send();

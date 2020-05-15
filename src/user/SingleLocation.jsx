@@ -7,7 +7,6 @@ class SingleLocation extends React.Component {
     return (
       <div className="single-location">
       <button className="btn btn-primary btn-block" onClick={this.props.back}>Go Back</button>
-      <button className="btn btn-primary" onClick={() =>{console.log(this.props.eta[0].eta)}}></button>
         <table style={{width:700 }}>
             <tr>
               <th>Location Name</th>
