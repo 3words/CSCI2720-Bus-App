@@ -536,7 +536,7 @@ app.post('/getComment', function(req,res) {
         Comment.find(
           {loc: result._id})
           .populate('loc')
-          .populate('user')
+          .populate('user', 'userName')
           .sort('-timeStamp')
           .exec(function(err1, results1) {
             if(err1) {
