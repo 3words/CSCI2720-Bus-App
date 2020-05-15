@@ -12,23 +12,57 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import 'react-dropzone-uploader/dist/styles.css'
 import Dropzone from 'react-dropzone-uploader'
-//import csv from 'csv'
+import csv from 'csv'
+var Papa = require('papaparse')
 
-const MyUploader = () => {
-  const getUploadParams = ({ meta }) => { return { url: '/uploadFile' } }
-  const handleChangeStatus = ({ meta, file }, status) => { console.log(status, meta, file) }
-  const handleSubmit = (files, allFiles) => {
-    console.log(files.map(f => f.meta))
-    allFiles.forEach(f => f.remove())
+class FileReader extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      csvfile: undefined
+    };
+    this.updateData = this.updateData.bind(this);
   }
 
-  return (
-    <Dropzone
-      getUploadParams={getUploadParams}
-      onChangeStatus={handleChangeStatus}
-      onSubmit={handleSubmit}
-    />
-  )
+  handleChange = event => {
+    this.setState({
+      csvfile: event.target.files[0]
+    });
+  };
+
+  importCSV = () => {
+    const { csvfile } = this.state;
+    Papa.parse(csvfile, {
+      complete: this.updateData,
+      header: true
+    });
+  };
+
+  updateData(result) {
+    var data = result.data;
+    console.log(data);
+  }
+
+  render() {
+    console.log(this.state.csvfile);
+    return (
+      <div className="App">
+        <h2>Import CSV File!</h2>
+        <input
+          className="csv-input"
+          type="file"
+          ref={input => {
+            this.filesInput = input;
+          }}
+          name="file"
+          placeholder={null}
+          onChange={this.handleChange}
+        />
+        <p />
+        <button onClick={this.importCSV}> Upload now!</button>
+      </div>
+    );
+  }
 }
 
 class CreateAccount extends React.Component {
@@ -48,23 +82,23 @@ class CreateAccount extends React.Component {
       }
     });
   };
-
+  
     render() {
       return (
         <div className='CreateAccount'>
           <form onSubmit={this.handleSubmit}>
             <h2> Create a User Account </h2>
-
+  
             <div className="form-group">
                 <label>New User Name:</label>
                 <input id="userName" type="text" className="form-control" placeholder="Enter username" />
             </div>
-
+  
             <div className="form-group">
                 <label>New User Password:</label>
                 <input id="password" type="password" className="form-control" placeholder="Enter password" />
             </div>
-
+  
             <button type="submit" className="btn btn-primary">Submit</button>
           </form>
         </div>
@@ -85,7 +119,7 @@ class ChangeName extends React.Component {
         if(res.data === "valid") {
           alert("Change Successfully");
         } else if(res.data === "Please enter new username") {
-          alert("Please fill in the fields")
+          alert("Please fill in the fields") 
         }
           else {
             alert("Input invalid")
@@ -93,23 +127,23 @@ class ChangeName extends React.Component {
         }
       );
     };
-
+    
     render() {
       return (
           <div className='EditName'>
             <form onSubmit={this.handleSubmit}>
               <h2> Update User Name </h2>
-
+    
               <div className="form-group">
                   <label>Current User Name:</label>
                   <input id="userName" type="text" className="form-control" placeholder="Enter username" />
               </div>
-
+    
               <div className="form-group">
                   <label>New User Name:</label>
                   <input id="newName" type="text" className="form-control" placeholder="Enter new username" />
               </div>
-
+    
               <button type="submit" className="btn btn-primary">Submit</button>
             </form>
           </div>
@@ -134,23 +168,23 @@ class ChangeUserPW extends React.Component {
           }
         });
       };
-
+      
       render() {
         return (
             <div className='EditPW'>
               <form onSubmit={this.handleSubmit}>
                 <h2> Update User Password </h2>
-
+      
                 <div className="form-group">
                     <label>Current User Name:</label>
                     <input id="userName" type="text" className="form-control" placeholder="Enter username" />
                 </div>
-
+      
                 <div className="form-group">
                     <label>New Password:</label>
                     <input id="newPW" type="password" className="form-control" placeholder="Enter new password" />
                 </div>
-
+      
                 <button type="submit" className="btn btn-primary">Submit</button>
               </form>
             </div>
@@ -169,23 +203,23 @@ class ChangeUserPW extends React.Component {
       if(res.data === "valid") {
         alert("Delete Successfully");
       } else{
-        alert("Fail to delete")
+        alert("Fail to delete") 
       }
       }
     );
   };
-
+  
   render() {
     return (
         <div className='DeleteAcc'>
           <form onSubmit={this.handleSubmit}>
             <h2> Delete User Account </h2>
-
+  
             <div className="form-group">
                 <label>User Name:</label>
                 <input id="userName" type="text" className="form-control" placeholder="Enter username" />
             </div>
-
+  
             <button type="submit" className="btn btn-primary">Submit</button>
           </form>
         </div>
@@ -205,12 +239,12 @@ class FlushData extends React.Component {
       }
     });
   };
-
+  
     render() {
       return (
         <div className='FlushData'>
           <form onSubmit={this.handleSubmit}>
-            <h2> Flush Data </h2>
+            <h2> Flush Data </h2> 
             <button type="submit" className="btn btn-primary">Submit</button>
           </form>
         </div>
@@ -235,13 +269,13 @@ class ChangeLocationName extends React.Component {
       }
     });
   };
-
+  
   render() {
     return (
         <div className='LocationName'>
           <form onSubmit={this.handleSubmit}>
             <h2> Change Location Name </h2>
-
+  
             <div className="form-group">
                 <label>Current Location Name:</label>
                 <input id="current" type="text" className="form-control" placeholder="Enter old location" />
@@ -251,7 +285,7 @@ class ChangeLocationName extends React.Component {
                 <label>New Location Name:</label>
                 <input id="new" type="text" className="form-control" placeholder="Enter new location" />
             </div>
-
+  
             <button type="submit" className="btn btn-primary">Submit</button>
           </form>
         </div>
@@ -298,11 +332,11 @@ class UploadCSV extends Component {
       <div align="center" oncontextmenu="return false">
         <h2 align="left">Upload or drop your CSV file here.</h2>
         <div className="dropzone">
-          <Dropzone accept=".csv" onDropAccepted={this.onDrop.bind(this)}>
+          <Dropzone accept=".csv" onDropAccepted={this.onDrop.bind(this)}>            
           </Dropzone>
         </div>
       </div>
-
+      
     )
   }
 }
@@ -356,6 +390,7 @@ render(){
           <DeleteAccount/>
         </div>
         <div className= "upload file">
+          <FileReader/>
         </div>
       </div>
     );
