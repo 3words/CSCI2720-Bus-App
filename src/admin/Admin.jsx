@@ -7,7 +7,7 @@ import Dropzone from 'react-dropzone-uploader'
 import csv from 'csv'
 
 const MyUploader = () => {
-  const getUploadParams = ({ meta }) => { return { url: 'https://httpbin.org/post' } }
+  const getUploadParams = ({ meta }) => { return { url: '/uploadFile' } }
   const handleChangeStatus = ({ meta, file }, status) => { console.log(status, meta, file) }
   const handleSubmit = (files, allFiles) => {
     console.log(files.map(f => f.meta))
