@@ -210,7 +210,9 @@ class User extends React.Component {
   handledetailsInfoBack = ()=>{
     this.setState({
       singleLocation:!this.state.singleLocation,
-      detailsInfo: ""
+      detailsInfo: "",
+      showList:true,
+      showMap:false
     })
   }
 
@@ -228,7 +230,7 @@ class User extends React.Component {
   }
 
   handleMarkerOnclick = async (locationID) => {
-   
+
     var res = await axios.post('/relatedStop', {
       locationID: locationID
     })
@@ -310,9 +312,12 @@ class User extends React.Component {
           <button className="logout-button btn btn-primary" onClick={this.props.logout}>Logout</button>
           <span className="userName">Hello, {this.props.user}</span>
         </div>
-
-        <button className="btn btn-primary" onClick={()=>{this.toggleShowList()}}>Switch View (List/Map)</button>
-        <button className="btn btn-primary" onClick={()=>{this.handleListLocations(this.handleOnClickTableRow)}}>Load List</button>
+        {!this.state.singleLocation &&
+          <div>
+            <button className="btn btn-primary" onClick={()=>{this.toggleShowList()}}>Switch View (List/Map)</button>
+            <button className="btn btn-primary" onClick={()=>{this.handleListLocations(this.handleOnClickTableRow)}}>Load List</button>
+          </div>
+        }
         {this.state.showList &&
           <ListLocation locationList={this.state.locationList}></ListLocation>
         }

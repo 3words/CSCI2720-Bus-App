@@ -8,8 +8,9 @@ class SingleLocation extends React.Component {
   render() {
     return (
       <div className="single-location">
-        <table style={{width:700 }}> 
-            <tr> 
+      <button className="btn btn-primary btn-block" onClick={this.props.back}>Go Back</button>
+        <table style={{width:700 }}>
+            <tr>
               <th>Location Name</th>
               <td>{this.props.relatedStop[0].loc.name}</td>
             </tr>
@@ -20,10 +21,10 @@ class SingleLocation extends React.Component {
             <tr>
               <th>Latitude</th>
               <td>{this.props.relatedStop[0].loc.latitude}</td>
-            </tr>   
+            </tr>
         </table>
         <MapView markerOnclick = {null} allInfomation={[this.props.relatedStop[0].loc]}></MapView>
-        
+
       </div>
     );
   }
