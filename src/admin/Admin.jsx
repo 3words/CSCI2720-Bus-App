@@ -2,26 +2,9 @@ import React, { useState, useRef, Component } from 'react';
 import './Admin.css';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import 'react-dropzone-uploader/dist/styles.css'
-import Dropzone from 'react-dropzone-uploader'
-import csv from 'csv'
-
-const MyUploader = () => {
-  const getUploadParams = ({ meta }) => { return { url: 'https://httpbin.org/post' } }
-  const handleChangeStatus = ({ meta, file }, status) => { console.log(status, meta, file) }
-  const handleSubmit = (files, allFiles) => {
-    console.log(files.map(f => f.meta))
-    allFiles.forEach(f => f.remove())
-  }
-
-  return (
-    <Dropzone
-      getUploadParams={getUploadParams}
-      onChangeStatus={handleChangeStatus}
-      onSubmit={handleSubmit}
-    />
-  )
-}
+//import 'react-dropzone-uploader/dist/styles.css'
+//import Dropzone from 'react-dropzone-uploader'
+//import csv from 'csv' 
 
 class CreateAccount extends React.Component {
 
@@ -250,7 +233,7 @@ class ChangeLocationName extends React.Component {
     );
   }
 }
-
+/*
 class UploadCSV extends Component {
   onDrop(files) {
     this.setState({ files });
@@ -299,7 +282,7 @@ class UploadCSV extends Component {
   }
 }
 
-
+*/
 /*
 const UploadCSV = () => {
   const getUploadParams = () => {
@@ -339,7 +322,7 @@ render(){
         <div className="CRUDLocation">
           <FlushData/>
           <ChangeLocationName/>
-          <MyUploader/>
+
         </div>
         <div className="CRUDUser">
           <CreateAccount/>
@@ -348,7 +331,6 @@ render(){
           <DeleteAccount/>
         </div>
         <div className= "upload file">
-        <UploadCSV/>
         </div>
       </div>
     );
