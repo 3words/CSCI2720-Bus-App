@@ -117,8 +117,8 @@ class ListLocation extends React.Component {
 
   handleContextClick = (event) =>{
     event.preventDefault();
-    let deleteConfirm = window.confirm("Do you want to search for locations by "+event.target.innerHTML+" field?")
-    if(!deleteConfirm) return false;
+    let searchConfirm = window.confirm("Do you want to search for locations by "+event.target.innerHTML+" field?")
+    if(!searchConfirm) return false;
 
     let inputKeyword = window.prompt("Enter keyword in "+event.target.innerHTML+" field");
 
@@ -325,7 +325,7 @@ class User extends React.Component {
           <MapView markerOnclick = {this.handleMarkerOnclick} allInfomation={this.state.allInfomation}></MapView>
         }
         {this.state.singleLocation &&
-          <SingleLocation  back={this.handledetailsInfoBack} relatedStop={this.state.detailsInfo}></SingleLocation>
+          <SingleLocation  user={this.props.user} back={this.handledetailsInfoBack} relatedStop={this.state.detailsInfo}></SingleLocation>
         }
       </div>
     );

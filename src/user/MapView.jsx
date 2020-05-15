@@ -23,6 +23,7 @@ class MapView extends React.Component {
 
   render() {
     return (
+      <div>
         <Map
           google={this.props.google}
           zoom={10}
@@ -31,6 +32,8 @@ class MapView extends React.Component {
         >
         {this.displayMarkers(this.props.markerOnclick,this.props.allInfomation)}
         </Map>
+      </div>
+        
     );
   }
 }
