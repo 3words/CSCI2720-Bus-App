@@ -380,9 +380,19 @@ app.patch('/changePassword', getUserByUsername, async(req, res) => {
   }
 });
 
-app.delete('/deleteUser',  async(req, res) => {
+app.delete('/deleteUser/:userName', async(req, res) => {
+  var user;
+  var inputUserName = req.params['userName'];
+  try {
+    user = await User.findOne({ userName: inputUserName });
+    if (user == null) {
+      return res.send("User not found");
+    }
+  } catch (err) {
+    return res.send("invalid");
+  }
   try{
-      await res.user.remove();
+      await user.remove();
       res.send("valid");
   }catch (err) {
       res.send("invalid");
