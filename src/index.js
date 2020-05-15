@@ -13,12 +13,14 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 import { Switch, Route, HashRouter as Router } from 'react-router-dom';
 import Admin from './admin/Admin';
+import About from './About.jsx';
 
 ReactDOM.render(
   <React.StrictMode>
     <Router>
       <Switch>
         <Route exact={true} path="/appadmin" component={Admin} />
+        <Route exact={true} path="/aboutthisproject" component={About} />
         <Route component={App}/>
       </Switch>
     </Router>

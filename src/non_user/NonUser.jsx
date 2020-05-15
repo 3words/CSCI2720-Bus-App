@@ -48,6 +48,8 @@ handleSubmit = (event) => {
         </form>
         <br/>
         <Link to='/appadmin'>Login as admin</Link>
+        <br/>
+        <Link to='/aboutthisproject'>About this Project</Link>
       </div>
     );
   }
