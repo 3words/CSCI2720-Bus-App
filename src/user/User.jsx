@@ -5,7 +5,6 @@ import SingleLocation from './SingleLocation';
 import MapView from './MapView';
 let allRoutes =[967, 969, 97, 48, 314, 19, 20, 182, 171, 260]
 
-
 class Content extends React.Component {
 
 
@@ -178,10 +177,11 @@ class User extends React.Component {
     this.state = {
       showList: true,
       showMap: false,
+      singleLocation: false,
       locationList:"",
       allInfomation:"",
       detailsInfo: "",
-      singleLocation: false
+      eta:""
     };
   }
 
@@ -235,8 +235,23 @@ class User extends React.Component {
       locationID: locationID
     })
     var relate = JSON.parse(JSON.stringify(res.data));
+    var tempEtaArray = [];
+    var eta;
+    for (var i=0; i<relate.length; i++) {
+      var url='https://rt.data.gov.hk/v1/transport/citybus-nwfb/eta/CTB/00'+locationID+'/'+relate[i].route.route;
+      let request = new XMLHttpRequest();
+      await request.open("GET", url,false);
+       request.onreadystatechange = await function() {
+        if(request.readyState === XMLHttpRequest.DONE && request.status === 200) {
+            var etaInfo = JSON.parse(request.responseText);
+            tempEtaArray.push(etaInfo.data[0])
+        }
+      }
+      request.send();
+    }
     this.setState({
       singleLocation:!this.state.singleLocation,
+      eta: tempEtaArray,
       detailsInfo:relate,
       showList:false,
       showMap:false
@@ -325,7 +340,7 @@ class User extends React.Component {
           <MapView markerOnclick = {this.handleMarkerOnclick} allInfomation={this.state.allInfomation}></MapView>
         }
         {this.state.singleLocation &&
-          <SingleLocation  user={this.props.user} back={this.handledetailsInfoBack} relatedStop={this.state.detailsInfo}></SingleLocation>
+          <SingleLocation  eta={this.state.eta} user={this.props.user} back={this.handledetailsInfoBack} relatedStop={this.state.detailsInfo}></SingleLocation>
         }
       </div>
     );
