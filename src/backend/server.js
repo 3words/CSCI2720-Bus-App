@@ -453,10 +453,11 @@ app.patch('/changeLocationName', async(req, res) => {
 
 app.post('/uploadFile', async(req,res) =>{
     try{
-      data = req.body;
+      data = req.body.data;
+      console.log(data);
       data.forEach(async function(obj) {
         const filter = {"locationID": obj.locationID};
-        const update = {"name": obj.name, "lat": obj.lat, "long": obj.long};
+        const update = {"name": obj.name, "latitude": obj.lat, "longitude": obj.long};
         var e = await Location.findOneAndUpdate(filter, update, {
         new: true,
         upsert: true
