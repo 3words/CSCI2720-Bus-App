@@ -4,7 +4,7 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import 'react-dropzone-uploader/dist/styles.css'
 import Dropzone from 'react-dropzone-uploader'
-import csv from 'csv'
+//import csv from 'csv'
 
 const MyUploader = () => {
   const getUploadParams = ({ meta }) => { return { url: '/uploadFile' } }
