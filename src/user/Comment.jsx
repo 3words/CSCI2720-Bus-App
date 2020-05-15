@@ -1,3 +1,11 @@
+/*
+Group Memeber:
+Yu Chun Fung Ray 1155094125
+Pun Man Wing 1155092833
+Ho Shing Fung 1155105818
+Yip Kai Hin  1155105796
+*/
+
 import React from 'react';
 import axios from 'axios';
 
@@ -45,7 +53,7 @@ class Comment extends React.Component {
             this.setState({
             allComment: single,
             });
-        } 
+        }
       }
 
       /*
@@ -80,7 +88,7 @@ class Comment extends React.Component {
                 <button className="btn btn-primary" onClick={()=>{this.handleAddCommentOnclick(this.props.user,this.props.singleLocation)}}>Add Comment</button>
                 <div id='comments'>
                     {this.state.showComment && this.state.allComment.map((com,index) =>
-                    
+
                     <table style={{width:700 }}>
                     <tr>
                         <th>User</th>

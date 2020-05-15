@@ -1,19 +1,27 @@
+/*
+Group Memeber:
+Yu Chun Fung Ray 1155094125
+Pun Man Wing 1155092833
+Ho Shing Fung 1155105818
+Yip Kai Hin  1155105796
+*/
+
 import React from 'react';
 import axios from 'axios';
 class AddFavour extends React.Component {
     constructor(props) {
         super(props);
         this.state = {LocID: this.props.favourLocation.locationID, UserName: this.props.user};
-    
+
         this.handleChange = this.handleChange.bind(this);
         this.handleNameChange = this.handleNameChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
       }
-    
+
       handleChange(event) {
         this.setState({LocID: event.target.value});
       }
-    
+
       handleNameChange(event) {
         this.setState({UserName: event.target.value});
       }
@@ -24,7 +32,7 @@ class AddFavour extends React.Component {
         alert('A Name was submitted: ' + this.state.UserName);
       */
     //var relate = JSON.parse(JSON.stringify(res.data));
-  
+
 
       async handleSubmit(event) {
         let submitConfirm = window.confirm("Do you want to submit?")
@@ -34,13 +42,13 @@ class AddFavour extends React.Component {
             userName: this.state.UserName,
             locationId: this.state.LocID
           })
-        
+
         if(res.data === "Success") alert(res.data)
-        else alert(res.data) 
+        else alert(res.data)
         event.preventDefault();
-        
+
       }
-      
+
 
     render() {
         return (
