@@ -223,7 +223,8 @@ class User extends React.Component {
     this.setState({
       singleLocation:!this.state.singleLocation,
       detailsInfo:relate,
-      showList:false
+      showList:false,
+      MapView:false
     })
   }
 

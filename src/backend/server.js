@@ -221,7 +221,7 @@ app.post('/flushData', async function(req, res) {
                     });
                     const e = await newStop.save(function(err) {
                       if (err)
-                        console.log(err);           
+                        console.log(err);
                     });*/
                     try{
                     const filter = {"loc": findLocation._id, "route": findRoute._id, "dir": obj.dir};
@@ -444,7 +444,7 @@ app.get('/allLocation', function(req, res) {
   });
 });
 
-app.get('/relatedStop', async function(req, res) {
+app.post('/relatedStop', async function(req, res) {
   try {
     var locationID = req.body['locationID'];
     var foundlocation = await Location.findOne({locationID: locationID});
@@ -461,7 +461,7 @@ app.get('/relatedStop', async function(req, res) {
     });
   }catch (err){
   res.send(err);
-  } 
+  }
 });
 
 
